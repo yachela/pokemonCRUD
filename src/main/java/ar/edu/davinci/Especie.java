@@ -1,6 +1,6 @@
 package ar.edu.davinci;
 
 public abstract class Especie {
-    String nombre;
+    String identificacion;
     Generacion generacion;
 }

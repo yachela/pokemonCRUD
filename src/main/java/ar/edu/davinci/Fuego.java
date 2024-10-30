@@ -1,4 +1,8 @@
 package ar.edu.davinci;
 
-public class Fuego {
+public class Fuego implements ITipoPokemon{
+    @Override
+    public void multiplicadorDanio() {
+
+    }
 }

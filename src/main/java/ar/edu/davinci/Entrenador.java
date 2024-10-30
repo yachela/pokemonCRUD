@@ -4,6 +4,7 @@ import org.springframework.cglib.core.Local;
 import java.time.LocalDate;
 import java.time.Period;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Entrenador {
@@ -17,6 +18,7 @@ public class Entrenador {
         this.name = nombre;
         this.birthDate = birthDate;
         this.nacionality = nacionality;
+        this.pokemonList = new ArrayList<>();
     }
 
     public String getName() {
@@ -34,6 +36,14 @@ public class Entrenador {
             return 0;
         }else{
             return Period.between(birthDate, LocalDate.now()).getYears();
+        }
+    }
+
+    public void capturarPokemon(Pokemon pokemon) {
+        if (this.pokemonList.size() < 5) {
+            this.pokemonList.add(pokemon);
+        } else {
+            throw new IllegalStateException("No se puede tener más de 5 Pokemons");
         }
     }
 

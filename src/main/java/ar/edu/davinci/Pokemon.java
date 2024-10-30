@@ -2,22 +2,16 @@ package ar.edu.davinci;
 
 public abstract class Pokemon{
     private String nombre;
-    private Tipo tipo;
+    private ITipoPokemon tipo;
     private Float energia;
     private int poder;
     private Especie especie;
 
-    public Pokemon(String nombre, Tipo tipo, Float energia, int poder){
+    public Pokemon(String nombre, ITipoPokemon tipo, Float energia, int poder){
         this.tipo = tipo;
         this.energia = energia;
         this.poder = poder;
         this.nombre = nombre + especie.generacion;
-    }
-    public Tipo getTipo() {
-        return tipo;
-    }
-    public void setTipo(Tipo tipo) {
-        this.tipo = tipo;
     }
 
     public Float getEnergia() {
@@ -34,15 +28,14 @@ public abstract class Pokemon{
     }
 
     public void atacar(Pokemon otroPokemon) {
-        System.out.println(tipo + " ataca a " + otroPokemon.getTipo() );
+        otroPokemon.restarVida(this.poder);
     }
 
-
-    public void restarVida(Float cant) {
-
+    public void restarVida(float cantidad) {
+        this.energia -= cantidad;
     }
 
-    public Float aumentarVida(Pokemon otroPokemon) {
-    return (float) 0;
+    public void aumentarVida(float cantidad) {
+        this.energia += cantidad;
     }
 }

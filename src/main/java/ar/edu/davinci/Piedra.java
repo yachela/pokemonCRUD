@@ -1,6 +1,6 @@
 package ar.edu.davinci;
 
-public class Piedra implements Tipo{
+public class Piedra implements ITipoPokemon{
     @Override
     public void multiplicadorDanio() {
 

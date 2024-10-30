@@ -1,6 +1,6 @@
 package ar.edu.davinci;
 
-public interface Tipo {
+public interface ITipoPokemon {
   public void multiplicadorDanio();
 
 }
