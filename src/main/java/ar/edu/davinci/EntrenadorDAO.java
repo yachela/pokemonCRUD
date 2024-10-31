@@ -3,9 +3,8 @@ package ar.edu.davinci;
 import java.util.List;
 
  public interface EntrenadorDAO {
-    void crear(Entrenador entrenador);
-    Entrenador obtener(String nombre);
-    List<Entrenador> obtenerTodos();
-    void actualizar(Entrenador entrenador);
-    void eliminar(Entrenador entrenador);
+    void insert(Entrenador entrenador);
+    List<Entrenador> getAll();
+    void update(Entrenador entrenador);
+    void delete(Entrenador entrenador);
 }

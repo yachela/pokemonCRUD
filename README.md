@@ -63,3 +63,7 @@ Implementar el **DAO** para cada entidad, incluyendo las operaciones de **CRUD**
 
 ### Diagrama
 ![Diagrama de Clases](UML-PokemonCRUD-hito1.png)
+
+###TODO
+- Cambiar diagrama por nuevo modelado
+- 

@@ -1,11 +1,10 @@
 package ar.edu.davinci;
+import java.util.List;
 
-
-    public interface PokemonDAO {
-        void crear(Pokemon pokemon);
-        Pokemon obtener(String especie);
-        List<Pokemon> obtenerTodos();
-        void actualizar(Pokemon pokemon);
-        void eliminar(Pokemon pokemon);
+public interface PokemonDAO {
+        void insertPokemon(PokemonDTO pokemonDTO);
+       // List<Pokemon> getAllPokemons();
+        void updatePokemon(Pokemon pokemon);
+        void deletePokemon(int pokemonID);
     }
 
