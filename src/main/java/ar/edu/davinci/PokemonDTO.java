@@ -1,13 +1,15 @@
 package ar.edu.davinci;
 
 public class PokemonDTO {
+    private int id;
     private String nombre;
     private ITipoPokemon tipo;
     private Float energia;
     private int poder;
     private String especie;
 
-    public PokemonDTO(String nombre, ITipoPokemon tipo, Float energia, int poder, String especie) {
+    public PokemonDTO(int id, String nombre, ITipoPokemon tipo, Float energia, int poder, String especie) {
+        this.id = id;
         this.tipo = tipo;
         this.energia = energia;
         this.poder = poder;
@@ -47,5 +49,9 @@ public class PokemonDTO {
     }
     public void setEspecie(String especie) {
         this.especie = especie;
+    }
+
+    public int getId() {
+        return id;
     }
 }

@@ -1,68 +1,140 @@
 package ar.edu.davinci;
+
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
-public class PokemonDAOimplementsH2 implements PokemonDAO {
-
+public class PokemonDAOImplementsH2 implements PokemonDAO {
     private final Connection connection;
 
-    public PokemonDAOimplementsH2(Connection connection) throws SQLException {
-        this.connection = DriverManager.getConnection("jdbc:h2:mem:testdb", "", "");
+    // Constructor mejorado con manejo de errores
+    public PokemonDAOImplementsH2() throws SQLException {
+        // Es mejor usar una configuración centralizada para la conexión
+        this.connection = DriverManager.getConnection("jdbc:h2:mem:pokemon_db;DB_CLOSE_DELAY=-1", "", "");
         this.createTable();
-       // this.connection = JdbcConfiguration.getDBConnection();
     }
 
     private void createTable() {
-        ///Cambiar a datos bd Pokemon
-        String sql = "CREATE TABLE IF NOT EXISTS producto (id INT PRIMARY KEY, name VARCHAR(255), description VARCHAR(255), price INT, sotck INT, category VARCHAR(255))";
+        // SQL corregido para la tabla Pokemon
+        String sql = "CREATE TABLE IF NOT EXISTS pokemon (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                "tipo VARCHAR(50), " +
+                "energia DOUBLE, " +
+                "poder INT, " +
+                "especie VARCHAR(100))";
+
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error creating Pokemon table: " + e.getMessage(), e);
         }
     }
-
 
     @Override
     public void insertPokemon(PokemonDTO pokemonDTO) {
-        try {
-            Pokemon newPokemon = new Pokemon();
-            newPokemon.getTipo(pokemonDTO.getTipo());
-            newPokemon.getEnergia(pokemonDTO.getEnergia());
-            newPokemon.getPoder(pokemonDTO.getPoder());
-            newPokemon.getEspecie(pokemonDTO.getEspecie());
-            PreparedStatement preparedStatement = connection.prepareStatement(
-                    "INSERT INTO pokemon( tipo, energia, poder, especie) VALUES(?,?,?,?)");
-            preparedStatement.setString(1, newPokemon.getNombre());
+        String sql = "INSERT INTO pokemon (tipo, energia, poder, especie) VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            // Corrección: usar setters en lugar de getters para establecer valores
+            preparedStatement.setString(1, pokemonDTO.getTipo());
+            preparedStatement.setDouble(2, pokemonDTO.getEnergia());
+            preparedStatement.setInt(3, pokemonDTO.getPoder());
+            preparedStatement.setString(4, pokemonDTO.getEspecie());
+
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error inserting Pokemon: " + e.getMessage(), e);
         }
     }
-
 
     @Override
     public void updatePokemon(PokemonDTO pokemonDTO) {
-            String sql = "UPDATE pokemons SET name = ?, price = ?, description = ? WHERE id = ?";
+        String sql = "UPDATE pokemon SET tipo = ?, energia = ?, poder = ?, especie = ? WHERE id = ?";
 
-            try (PreparedStatement stmt = connection.) {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, pokemonDTO.getTipo());
+            stmt.setDouble(2, pokemonDTO.getEnergia());
+            stmt.setInt(3, pokemonDTO.getPoder());
+            stmt.setString(4, pokemonDTO.getEspecie());
+            stmt.setInt(5, pokemonDTO.getId());
 
-
-                Pokemon product = dtoToEntity(productDTO);
-                stmt.setString(1, product.getName());
-                stmt.setDouble(2, product.getPrice());
-                stmt.setString(3, product.getDescription());
-                stmt.setLong(4, product.getId());
-
-                stmt.executeUpdate();
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new RuntimeException("Pokemon with ID " + pokemonDTO.getId() + " not found");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating Pokemon: " + e.getMessage(), e);
+        }
     }
 
     @Override
-    public void deletePokemon(int pokemonID) {
-        try{
+    public void deletePokemon(int pokemonId) {
+        String sql = "DELETE FROM pokemon WHERE id = ?";
 
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, pokemonId);
+
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new RuntimeException("Pokemon with ID " + pokemonId + " not found");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting Pokemon: " + e.getMessage(), e);
         }
     }
-}
 
+    // Agregando métodos adicionales útiles
+    public Pokemon getPokemonById(int id) {
+        String sql = "SELECT * FROM pokemon WHERE id = ?";
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToPokemon(rs);
+                }
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error getting Pokemon: " + e.getMessage(), e);
+        }
+    }
+
+    public List<Pokemon> getAllPokemons() {
+        String sql = "SELECT * FROM pokemon";
+        List<Pokemon> pokemons = new ArrayList<>();
+
+        try (Statement stmt = connection.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                pokemons.add(mapResultSetToPokemon(rs));
+            }
+            return pokemons;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error getting all Pokemons: " + e.getMessage(), e);
+        }
+    }
+
+    private Pokemon mapResultSetToPokemon(ResultSet rs) throws SQLException {
+        Pokemon pokemon = new Pokemon();
+        pokemon.setId(rs.getInt("id"));
+        pokemon.setTipo(rs.getString("tipo"));
+        pokemon.setEnergia(rs.getDouble("energia"));
+        pokemon.setPoder(rs.getInt("poder"));
+        pokemon.setEspecie(rs.getString("especie"));
+        return pokemon;
+    }
+
+    // Método para cerrar la conexión
+    public void closeConnection() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error closing connection: " + e.getMessage(), e);
+        }
+    }
 }
