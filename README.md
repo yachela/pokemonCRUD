@@ -1,3 +1,14 @@
+# Proyecto Pokémon Trainer
+
+## Navegación
+- [Hito 1](#hito-1)
+   - [Consigna](#consigna)
+- [Hito 2](#hito-2)
+   - [Consigna](#consigna-1)
+- [Descripción del Modelo](#descripción-del-modelo)
+- [Diagrama de Clases](#diagrama-de-clases)
+- [Tareas Pendientes](#tareas-pendientes)
+
 # Hito 1
 
 ## Consigna
@@ -21,49 +32,67 @@ Un **Pokemon** entiende:
 
 Además del modelo, se pide implementar el **DAO** (Data Access Object) para cada entidad, incluyendo las operaciones de **CRUD** (Create, Read, Update, Delete) de cada una.
 
+# Hito 2
+
+## Consigna
+Se pide extender el dominio del hito uno. Cada Pokémon tiene un poder vinculado, que tiene un costo de poder y produce un determinado daño. Además, la cantidad de daño va a depender del tipo:
+
+- Si un tipo eléctrico ataca a uno de tipo agua, le produce un 50% más de daño, pero se hace a sí mismo un 5% de daño.
+- Si un tipo agua ataca a un tipo fuego, le hace un 25% de daño extra.
+- Si un tipo fuego ataca a un Pokémon de tipo planta, le hace un 20% de daño extra.
+- Si un tipo planta ataca a un tipo piedra, no le produce daño.
+
+Además, se debe implementar la funcionalidad para que un Entrenador pueda capturar un Pokémon (siempre y cuando no tenga más de 5 Pokémons capturados). Un Pokémon será capturado cuando llegue a 0 puntos de vida.
+
 ## Descripción del Modelo
 
 ### Clases a Modelar
-1. **Entrenador**
-    - **Atributos**:
-        - `nombre`: String
-        - `fechaNacimiento`: Date
-        - `nacionalidad`: String
-        - `genero`: String
-        - `edad`: int
-        - `pokemons`: List<Pokemon> (máximo 5 pokémons)
 
-    - **Métodos**:
-        - `enfrentarseA(Entrenador otroEntrenador)`: Iniciar una batalla con otro entrenador.
-        - `capturarPokemon(Pokemon pokemon)`: Capturar un nuevo Pokémon, limitado a 5.
-        - Getters y Setters para cada atributo.
+1. **Trainer (Entrenador)**
+   - **Atributos**:
+      - `name` (nombre): String
+      - `birthDate` (fecha de nacimiento): LocalDate
+      - `nationality` (nacionalidad): String
+      - `gender` (género): String
+      - `age` (edad): int
+      - `pokemonList` (lista de Pokémons): List<Pokemon> (máximo de 5 Pokémons)
+
+   - **Métodos**:
+      - `faceTrainer(Trainer otherTrainer)` (enfrentarse a otro entrenador): Inicia una batalla con otro entrenador.
+      - `capturePokemon(Pokemon pokemon)` (capturar Pokémon): Captura un nuevo Pokémon, limitado a 5.
+      - Getters y setters para cada atributo.
+      - `getName()`: Devuelve el nombre del entrenador.
+      - `setName(String name)`: Establece el nombre del entrenador.
+      - `getPokemons()`: Devuelve la lista de Pokémons.
 
 2. **Pokemon**
-    - **Atributos**:
-        - `tipo`: Tipo (interfaz)
-        - `especie`: Especie (clase abstracta)
-        - `energia`: Float (valor entre 0 y 100)
-        - `poder`: Float (valor entre 0 y 100)
+   - **Atributos**:
+      - `type` (tipo): IType (interfaz)
+      - `species` (especie): String
+      - `energy` (energía): Float (valor entre 0 y 100)
+      - `power` (poder): int (valor entre 0 y 100)
+      - `id`: int
 
-    - **Métodos**:
-        - `atacar(Pokemon otroPokemon)`: Atacar a otro Pokémon.
-        - `restarVida(Float cant)`: Reducir la vida.
-        - `aumentarVida(Float vida)`: Incrementar la vida.
+   - **Métodos**:
+      - `attack(Pokemon otherPokemon)` (atacar a otro Pokémon): Ataca a otro Pokémon, reduciendo su energía.
+      - `reduceEnergy(float amount)` (reducir vida): Disminuye la energía del Pokémon en una cantidad específica.
+      - `increaseEnergy(float amount)` (aumentar vida): Incrementa la energía del Pokémon en una cantidad específica.
+      - Getters y setters para `type`, `species`, `energy`, `power` e `id`.
 
-### Clase Abstracta y Interfaces
-- **Tipo**: Interfaz que representa el tipo del Pokémon. Cada tipo específico (Eléctrico, Agua, Fuego, Planta, Piedra) implementará esta interfaz.
-- **Especie**: Clase abstracta que contiene los atributos:
-    - `identificacion`: String
-    - `generacion`: Enum (representa la generación del Pokémon).
+### Interfaces
 
-### Requisitos DAO
-Implementar el **DAO** para cada entidad, incluyendo las operaciones de **CRUD** (Create, Read, Update, Delete).
+- **IType (Tipo)**: Interfaz que representa el tipo del Pokémon. Cada tipo específico (Eléctrico, Agua, Fuego, Planta, Roca) implementa esta interfaz e incluye:
+   - `damageMultiplicator()`: Define la lógica del multiplicador de daño.
+   - `getTypeName()`: Devuelve el nombre del tipo.
 
 ## Diagrama de Clases
 
 ### Diagrama
-![Diagrama de Clases](UML-PokemonCRUD-hito1.png)
+![Diagrama de Clases](UML.png)
 
-###TODO
-- Cambiar diagrama por nuevo modelado
-- 
+## Tareas Pendientes
+
+- [x] Terminar la implementación de la clase Trainer
+- [x] Actualizar la variable `species` a String en la clase Pokemon
+- [ ] Escribir pruebas unitarias para el método `faceTrainer`
+- [ ] Escribir pruebas unitarias para los métodos de Pokemon
