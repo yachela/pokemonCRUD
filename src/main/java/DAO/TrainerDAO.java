@@ -6,5 +6,5 @@ import java.util.List;
     void insertTrainer(Trainer trainer);
     List<Trainer> getAllTrainers();
     void updateTrainer(Trainer trainer);
-    void deleteTrainer(Trainer trainer);
+    void deleteTrainer(int trainerId);
 }

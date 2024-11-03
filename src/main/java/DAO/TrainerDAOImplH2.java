@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TrainerDAOImplH2 implements TrainerDAO {
-    private static final String URL = "jdbc:h2:./data/test";
+    private static final String URL = "jdbc:h2:tcp://localhost/~/test";
+   // private static final String URL = "jdbc:h2:~/test";
     private static final String USER = "sa";
     private static final String PASSWORD = "";
     private Connection connection;
@@ -92,9 +93,22 @@ public class TrainerDAOImplH2 implements TrainerDAO {
     }
 
     @Override
-    public void deleteTrainer(Trainer trainer) {
+    public void deleteTrainer(int trainerId) {
+            try {
+                Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                String deleteQuery = "DELETE FROM trainer WHERE id = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);
+                preparedStatement.setInt(1, trainerId);
 
-    }
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected == 0) {
+                    throw new RuntimeException("Pokemon with ID " + trainerId + " not found");
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException("Error deleting Pokemon: " + e.getMessage(), e);
+            }
+        }
+
     @Override
     public List<Trainer> getAllTrainers() {
         List<Trainer> trainers = new ArrayList<>();
@@ -136,11 +150,11 @@ public class TrainerDAOImplH2 implements TrainerDAO {
                 int id = resultSet.getInt("id");
                 String typeStr = resultSet.getString("type");
                 IType type = IType.fromString(typeStr);
-                float energy = resultSet.getFloat("energy");
-                int power = resultSet.getInt("power");
+               // float energy = resultSet.getFloat("energy");
+                Float power = resultSet.getFloat("power");
                 String specie = resultSet.getString("especie");
 
-                Pokemon pokemon = new Pokemon(type, energy, power, specie, id);
+                Pokemon pokemon = new Pokemon(type, power, specie, id);
                 pokemonList.add(pokemon);
             }
 

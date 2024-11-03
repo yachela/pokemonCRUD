@@ -1,30 +1,25 @@
 package Model;
 import ar.edu.davinci.IType;
-
-public class Pokemon{
-
-    ///TODO CAMBIAR VARIABLES A INGLES
+public class Pokemon {
     private IType type;
-    private Float energy;
-    private int power;
+    private float energy;
+    private float power;
     private String specie;
     private int id;
 
-    public Pokemon(IType type, Float energy, int power, String specie, int id) {
+    public Pokemon(IType type, float power, String specie, int id) {
         this.type = type;
-        this.energy = energy;
+        this.energy = 100;
         this.power = power;
         this.specie = specie;
         this.id = id;
     }
 
-    public Pokemon(){
+    public Pokemon() {
+        this.energy = 100;
+        this.power = 30;
     }
 
-
-    public void setId(int id) {
-        this.id = id;
-    }
     public int getId() {
         return id;
     }
@@ -33,29 +28,16 @@ public class Pokemon{
         return type;
     }
 
-    public void setType(IType type) {
-        this.type = type;
-    }
-
     public Float getEnergy() {
         return energy;
     }
-    public void setEnergy(Float energy) {
-        this.energy = energy;
-    }
 
-    public int getPower() {
+    public float getPower() {
         return this.power;
-    }
-    public void setPower(int power) {
-        this.power = power;
     }
 
     public String getSpecie() {
         return this.specie;
-    }
-    public void setSpecie(String specie) {
-        this.specie = specie;
     }
 
     public void attack(Pokemon otherPokemon) {
@@ -66,10 +48,12 @@ public class Pokemon{
         this.energy -= cant;
     }
 
-    public void healing(float cant) {
-        this.energy += cant;
+    public void healing() {
+        if (this.energy < 100) {
+            this.energy += 10;
+            if (this.energy > 100) {
+                this.energy = 100;
+            }
+        }
     }
-
-
-
 }

@@ -1,4 +1,4 @@
 package ar.edu.davinci;
 
-public class TrainerTest {
+public class TestTrainer {
 }

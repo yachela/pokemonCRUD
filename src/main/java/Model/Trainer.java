@@ -1,11 +1,10 @@
 package Model;
-
 import java.time.LocalDate;
 import java.time.Period;
 
 import java.util.ArrayList;
 import java.util.List;
-///TODO CAMBIAR VARIABLES A INGLES
+
 public class Trainer {
     private int id;
     private String name;
@@ -25,34 +24,27 @@ public class Trainer {
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
+
     public String getName() {
         return name;
     }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public void setAge(int age) {
-        this.age = age;
-    }
+
     public int getAge() {
         if (birthDate == null) {
             return 0;
-        }else{
+        } else {
             return Period.between(birthDate, LocalDate.now()).getYears();
         }
     }
+
     public String getNacionality() {
         return nacionality;
     }
-    public void setNacionality(String nacionality) {
-        this.nacionality = nacionality;
-    }
-    public List<Pokemon> getPokemonList() {
-        return pokemonList;
-    }
+
     public void setPokemonList(List<Pokemon> pokemonList) {
         this.pokemonList = pokemonList;
     }
@@ -60,25 +52,28 @@ public class Trainer {
     public LocalDate getBirthDate() {
         return birthDate;
     }
-    public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
-    }
+
     public String getNationality() {
         return nacionality;
     }
+
     public void pokemonCapture(Pokemon pokemon) {
         if (this.pokemonList.size() < 5) {
-            this.pokemonList.add(pokemon);
+            if (!this.pokemonList.contains(pokemon)) {
+                this.pokemonList.add(pokemon);
+                System.out.println("Pokemon capturado");
+            } else {
+                System.out.println("Este Pokemon ya está en tu equipo");
+            }
         } else {
-            throw new IllegalStateException("No se puede tener más de 5 Pokemons");
+            throw new IllegalStateException("No podes tener más de 5 Pokemons");
         }
     }
 
     public void faceTrainer(Trainer otherTrainer) {
-        System.out.println(this.name + " is facing " + otherTrainer.getName() + "!");
-       ///TODO completar la logica de enfrentamiento con otros trainers
-    }
+        System.out.println(this.name + " esta enfrentando a  " + otherTrainer.getName());
 
+    }
 
 
 }
