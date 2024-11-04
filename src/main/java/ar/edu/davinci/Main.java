@@ -18,7 +18,6 @@ public class Main {
         Pokemon charmander = new Pokemon(fireType, 50, "Charmander", 0);
         pokemonDAO.insertPokemon(charmander);
 
-
         pokemonDAO.getAllPokemons().forEach(pokemon -> {
             System.out.println("ID: " + pokemon.getId() + ", Especie: " + pokemon.getSpecie() + ", Tipo: " + pokemon.getType());
         });

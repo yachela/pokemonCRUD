@@ -10,7 +10,7 @@ import java.util.List;
 
 public class TrainerDAOImplH2 implements TrainerDAO {
     private static final String URL = "jdbc:h2:tcp://localhost/~/test";
-   // private static final String URL = "jdbc:h2:~/test";
+   // private static final String URL = "jdbc:h2:~/test"
     private static final String USER = "sa";
     private static final String PASSWORD = "";
     private Connection connection;

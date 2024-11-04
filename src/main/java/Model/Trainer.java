@@ -1,14 +1,13 @@
 package Model;
 import java.time.LocalDate;
 import java.time.Period;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Trainer {
     private int id;
     private String name;
-    private LocalDate birthDate;
+    private final LocalDate birthDate;
     private int age;
     private String nacionality;
     private List<Pokemon> pokemonList;
@@ -47,6 +46,10 @@ public class Trainer {
 
     public void setPokemonList(List<Pokemon> pokemonList) {
         this.pokemonList = pokemonList;
+    }
+
+    public List<Pokemon> getPokemonList() {
+        return pokemonList;
     }
 
     public LocalDate getBirthDate() {

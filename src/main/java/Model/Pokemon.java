@@ -3,6 +3,7 @@ import ar.edu.davinci.IType;
 public class Pokemon {
     private IType type;
     private float energy;
+    private final float maxEnergy = 100;
     private float power;
     private String specie;
     private int id;
@@ -41,10 +42,14 @@ public class Pokemon {
     }
 
     public void attack(Pokemon otherPokemon) {
+
         otherPokemon.restLife(this.power);
     }
 
     public void restLife(float cant) {
+        if(cant<0){
+            throw new IllegalArgumentException("El dano no puede ser negativo");
+        }
         this.energy -= cant;
     }
 
