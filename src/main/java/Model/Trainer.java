@@ -12,7 +12,7 @@ public class Trainer {
     private String nacionality;
     private List<Pokemon> pokemonList;
 
-    public Trainer(int id, String name, LocalDate birthDate, String nacionality) {
+    public Trainer(String name, LocalDate birthDate, String nacionality) {
         this.id = id;
         this.name = name;
         this.birthDate = birthDate;

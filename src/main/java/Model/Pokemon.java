@@ -1,24 +1,24 @@
 package Model;
 import ar.edu.davinci.IType;
 public class Pokemon {
+    private int id;
     private IType type;
     private float energy;
     private final float maxEnergy = 100;
     private float power;
     private String specie;
-    private int id;
+    private Trainer trainer;
 
-    public Pokemon(IType type, float power, String specie, int id) {
+
+    public Pokemon(IType type, String specie) {
+        if (type == null) {
+            throw new IllegalArgumentException("El tipo no puede ser null");
+        }
         this.type = type;
         this.energy = 100;
-        this.power = power;
+        this.power = 20;
         this.specie = specie;
-        this.id = id;
-    }
-
-    public Pokemon() {
-        this.energy = 100;
-        this.power = 30;
+        this.trainer = null;
     }
 
     public int getId() {
@@ -37,13 +37,32 @@ public class Pokemon {
         return this.power;
     }
 
+    public void setTrainer(Trainer trainer) {
+            this.trainer = trainer;
+            trainer.pokemonCapture(this);
+    }
+    public Trainer getTrainer() {
+        return trainer;
+    }
+
     public String getSpecie() {
         return this.specie;
     }
 
-    public void attack(Pokemon otherPokemon) {
+    public String getTrainerToString() {
+        return trainer.getName();
+    }
 
-        otherPokemon.restLife(this.power);
+    public void attack(Pokemon otherPokemon) {
+        otherPokemon.restLife(this.power * this.type.damageMultiplicator(otherPokemon.type));
+        this.restLife(this.energy * this.type.takeDamage(otherPokemon.type));
+        if (otherPokemon.isCapturable()){
+            this.trainer.pokemonCapture(otherPokemon);
+        }
+    }
+
+    public boolean isCapturable(){
+        return this.getEnergy() <= 0.0;
     }
 
     public void restLife(float cant) {
@@ -53,6 +72,7 @@ public class Pokemon {
         this.energy -= cant;
     }
 
+
     public void healing() {
         if (this.energy < 100) {
             this.energy += 10;
@@ -61,4 +81,5 @@ public class Pokemon {
             }
         }
     }
+
 }

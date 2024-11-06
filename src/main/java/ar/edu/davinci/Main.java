@@ -5,34 +5,30 @@ import DAO.TrainerDAOImplH2;
 import Model.Pokemon;
 import Model.Trainer;
 import ar.edu.davinci.IType;
-
 import java.time.LocalDate;
 
 public class Main {
     public static void main(String[] args) {
-
         PokemonDAOImplH2 pokemonDAO = new PokemonDAOImplH2();
+        Trainer trainer = new Trainer("Ash Ketchum", LocalDate.of(1997, 5, 22), "Kanto");
         TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
+        trainerDAO.insertTrainer(trainer);
 
-        IType fireType = new Fire() {};
-        Pokemon charmander = new Pokemon(fireType, 50, "Charmander", 0);
-        pokemonDAO.insertPokemon(charmander);
+        IType fireType = new Fire();
+        Pokemon pikachu = new Pokemon(fireType, "Pikachu");
+        pikachu.setTrainer(trainer);
 
-        pokemonDAO.getAllPokemons().forEach(pokemon -> {
-            System.out.println("ID: " + pokemon.getId() + ", Especie: " + pokemon.getSpecie() + ", Tipo: " + pokemon.getType());
-        });
+        pokemonDAO.insertPokemon(pikachu);
 
-
-        Trainer ash = new Trainer(0, "Ash Ketchum", LocalDate.of(2000, 5, 22), "Kanto");
-        trainerDAO.insertTrainer(ash);
-
-
-        trainerDAO.getAllTrainers().forEach(trainer -> {
-            System.out.println("ID: " + trainer.getId() + ", Nombre: " + trainer.getName() + ", Nacionalidad: " + trainer.getNationality());
-        });
-
-        trainerDAO.deleteTrainer(1);
-
+        System.out.println("Lista de Pokemon:");
+        for (Pokemon pokemon : pokemonDAO.getAllPokemons()) {
+            System.out.println("ID: " + pokemon.getId());
+            System.out.println("Especie: " + pokemon.getSpecie());
+            System.out.println("Tipo: " + pokemon.getType().getClass().getSimpleName());
+            System.out.println("Entrenador: " + (pokemon.getTrainer() != null ? pokemon.getTrainer().getName() : "Sin entrenador"));
+            System.out.println("Energía: " + pokemon.getEnergy());
+            System.out.println("Power: " + pokemon.getPower());
+        }
 
     }
 }

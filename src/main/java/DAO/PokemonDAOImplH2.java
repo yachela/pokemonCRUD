@@ -1,9 +1,11 @@
 package DAO;
 
 import Model.Pokemon;
+import Model.Trainer;
 import ar.edu.davinci.IType;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +23,12 @@ public class PokemonDAOImplH2 implements PokemonDAO {
             String createTableQuery = "CREATE TABLE IF NOT EXISTS pokemon (" +
                     "id INT AUTO_INCREMENT PRIMARY KEY, " +
                     "type VARCHAR(50), " +
-                    "energy FLOAT DEFAULT 100," +
+                    "energy FLOAT DEFAULT 100, " +
                     "power INT, " +
-                    "especie VARCHAR(100))";
+                    "specie VARCHAR(100), " +
+                    "trainer_id INT, " +
+                    "FOREIGN KEY (trainer_id) REFERENCES trainer(id)" +
+                    ")";
             statement.executeUpdate(createTableQuery);
             statement.close();
             connection.close();
@@ -36,12 +41,12 @@ public class PokemonDAOImplH2 implements PokemonDAO {
     public void insertPokemon(Pokemon pokemon) {
         try {
             this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            String insertQuery = "INSERT INTO pokemon (type, power, specie) VALUES (?, ?, ?)";
+            String insertQuery = "INSERT INTO pokemon (type, power, specie, trainer_id) VALUES (?, ?, ?, ?)";
             PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
             preparedStatement.setString(1, pokemon.getType().getClass().getSimpleName());
-            //  preparedStatement.setFloat(2, pokemon.getEnergy());
             preparedStatement.setFloat(2, pokemon.getPower());
             preparedStatement.setString(3, pokemon.getSpecie());
+            preparedStatement.setInt(4, pokemon.getTrainer().getId());
             preparedStatement.executeUpdate();
             preparedStatement.close();
             connection.close();
@@ -54,18 +59,27 @@ public class PokemonDAOImplH2 implements PokemonDAO {
     public void updatePokemon(Pokemon pokemon) {
         try {
             this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            String updateQuery = "UPDATE pokemon SET type = ?, power = ?, specie = ? WHERE id = ?";
+            String updateQuery = "UPDATE pokemon SET type = ?, power = ?, specie = ?, trainer_id = ? WHERE id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);
-            preparedStatement.setString(1, String.valueOf(pokemon.getType()));
-            // preparedStatement.setFloat(2, pokemon.getEnergy());
+            preparedStatement.setString(1, pokemon.getType().getClass().getSimpleName());
             preparedStatement.setFloat(2, pokemon.getPower());
             preparedStatement.setString(3, pokemon.getSpecie());
-            preparedStatement.setInt(4, pokemon.getId());
+
+            if (pokemon.getTrainer() != null) {
+                preparedStatement.setInt(4, pokemon.getTrainer().getId());
+            } else {
+                preparedStatement.setNull(4, Types.INTEGER);
+            }
+
+            preparedStatement.setInt(5, pokemon.getId());
 
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
                 throw new RuntimeException("Pokemon with ID " + pokemon.getId() + " not found");
             }
+
+            preparedStatement.close();
+            connection.close();
         } catch (SQLException e) {
             throw new RuntimeException("Error updating Pokemon: " + e.getMessage(), e);
         }
@@ -94,8 +108,9 @@ public class PokemonDAOImplH2 implements PokemonDAO {
 
         try {
             this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            String selectQuery = "SELECT p.*, t.id AS trainer_id, t.name AS trainer_name, t.birth_date, t.nationality " +
+                    "FROM pokemon p LEFT JOIN trainer t ON p.trainer_id = t.id";
             Statement statement = connection.createStatement();
-            String selectQuery = "SELECT * FROM pokemon";
             ResultSet resultSet = statement.executeQuery(selectQuery);
 
             while (resultSet.next()) {
@@ -109,10 +124,21 @@ public class PokemonDAOImplH2 implements PokemonDAO {
                 }
 
                 Float power = resultSet.getFloat("power");
-                String specie = resultSet.getString("species");
+                String specie = resultSet.getString("specie");
                 int id = resultSet.getInt("id");
 
-                Pokemon pokemon = new Pokemon(type, power, specie, id);
+                Trainer trainer = null;
+                int trainerId = resultSet.getInt("trainer_id");
+                if (!resultSet.wasNull()) {
+                    String trainerName = resultSet.getString("trainer_name");
+                    LocalDate birthDate = resultSet.getDate("birth_date").toLocalDate();
+                    String nationality = resultSet.getString("nationality");
+                    trainer = new Trainer(trainerName, birthDate, nationality);
+                    trainer.setId(trainerId);
+                }
+
+                Pokemon pokemon = new Pokemon(type, specie);
+                pokemon.setTrainer(trainer);
                 pokemons.add(pokemon);
             }
             resultSet.close();
@@ -122,15 +148,5 @@ public class PokemonDAOImplH2 implements PokemonDAO {
             throw new RuntimeException("Error getting all Pokemons: " + e.getMessage(), e);
         }
         return pokemons;
-    }
-
-    public void closeConnection() {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error closing connection: " + e.getMessage(), e);
-        }
     }
 }

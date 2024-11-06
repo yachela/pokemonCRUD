@@ -125,7 +125,7 @@ public class TrainerDAOImplH2 implements TrainerDAO {
                 int age = resultSet.getInt("age");
                 String nationality = resultSet.getString("nationality");
 
-                Trainer trainer = new Trainer(id, name, birthDate.toLocalDate(),nationality);
+                Trainer trainer = new Trainer(name, birthDate.toLocalDate(),nationality);
                 trainer.setPokemonList(getPokemonListByTrainerId(id));
                 trainers.add(trainer);
             }
@@ -154,7 +154,7 @@ public class TrainerDAOImplH2 implements TrainerDAO {
                 Float power = resultSet.getFloat("power");
                 String specie = resultSet.getString("especie");
 
-                Pokemon pokemon = new Pokemon(type, power, specie, id);
+                Pokemon pokemon = new Pokemon(type, specie);
                 pokemonList.add(pokemon);
             }
 

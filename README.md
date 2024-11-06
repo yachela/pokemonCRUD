@@ -99,4 +99,4 @@ Además, se debe implementar la funcionalidad para que un Entrenador pueda captu
 - [x] Escribir pruebas unitarias para los métodos de Entrenador
 - [ ] Evitar que un entrenador con mismos datos se pueda crear dos veces en BD
 - [ ] Incluir logica de danios de hito 2 en cada typo
-- [ ] Implementar logica de capturar el pokemon cuando su vida llegue a 0.
+- [x] Implementar logica de capturar el pokemon cuando su vida llegue a 0.

@@ -1,7 +1,8 @@
 package ar.edu.davinci;
 
 public interface IType {
-public void damageMultiplicator();
+public float damageMultiplicator(IType aType);
+public float takeDamage(IType aType);
     static IType fromString(String typeStr) {
         switch (typeStr.toLowerCase()) {
             case "fire":
@@ -10,6 +11,10 @@ public void damageMultiplicator();
                 return new Water();
             case "stone":
                 return new Stone();
+            case "plant":
+                return new Plant();
+            case "electric":
+                return new Electric();
             default:
                 throw new IllegalArgumentException("Unknown type: " + typeStr);
         }
