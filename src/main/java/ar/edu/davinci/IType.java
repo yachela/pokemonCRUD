@@ -1,9 +1,22 @@
 package ar.edu.davinci;
 
-public interface IType {
-public float damageMultiplicator(IType aType);
-public float takeDamage(IType aType);
-    static IType fromString(String typeStr) {
+    public interface IType {
+        float calculateDamage(IType opponentType);
+        float receiveDamage(IType opponentType);
+
+        float damageByElectric();
+        float damageByWater();
+        float damageByFire();
+        float damageByPlant();
+        float damageByStone();
+
+        float damageToElectric();
+        float damageToWater();
+        float damageToFire();
+        float damageToPlant();
+        float damageToStone();
+
+static IType fromString(String typeStr) {
         switch (typeStr.toLowerCase()) {
             case "fire":
                 return new Fire();

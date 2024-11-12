@@ -1,4 +1,5 @@
 package Model;
+
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
@@ -8,15 +9,13 @@ public class Trainer {
     private int id;
     private String name;
     private final LocalDate birthDate;
-    private int age;
-    private String nacionality;
+    private String nationality;
     private List<Pokemon> pokemonList;
 
-    public Trainer(String name, LocalDate birthDate, String nacionality) {
-        this.id = id;
+    public Trainer(String name, LocalDate birthDate, String nationality) {
         this.name = name;
         this.birthDate = birthDate;
-        this.nacionality = nacionality;
+        this.nationality = nationality;
         this.pokemonList = new ArrayList<>();
     }
 
@@ -33,15 +32,15 @@ public class Trainer {
     }
 
     public int getAge() {
-        if (birthDate == null) {
-            return 0;
-        } else {
-            return Period.between(birthDate, LocalDate.now()).getYears();
-        }
+        return Period.between(birthDate, LocalDate.now()).getYears();
     }
 
-    public String getNacionality() {
-        return nacionality;
+    public String getNationality() {
+        return nationality;
+    }
+
+    public void setNationality(String nationality) {
+        this.nationality = nationality;
     }
 
     public void setPokemonList(List<Pokemon> pokemonList) {
@@ -56,27 +55,63 @@ public class Trainer {
         return birthDate;
     }
 
-    public String getNationality() {
-        return nacionality;
-    }
-
-    public void pokemonCapture(Pokemon pokemon) {
+    public void capturePokemon(Pokemon pokemon) {
         if (this.pokemonList.size() < 5) {
             if (!this.pokemonList.contains(pokemon)) {
                 this.pokemonList.add(pokemon);
-                System.out.println("Pokemon capturado");
+                pokemon.setTrainer(this);
+                System.out.println("Pokemon capturado!");
             } else {
-                System.out.println("Este Pokemon ya está en tu equipo");
+                System.out.println("Ya tenes este Pokemon.");
             }
         } else {
-            throw new IllegalStateException("No podes tener más de 5 Pokemons");
+            throw new IllegalStateException("No podes tener mas de 5 pokemons.");
         }
     }
 
-    public void faceTrainer(Trainer otherTrainer) {
+
+    public String faceTrainer(Trainer otherTrainer) {
         System.out.println(this.name + " esta enfrentando a  " + otherTrainer.getName());
 
+        while (this.hasAlivePokemon() && otherTrainer.hasAlivePokemon()) {
+            // Each trainer selects their first active Pokemon
+            Pokemon myPokemon = this.getFirstActivePokemon();
+            Pokemon opponentPokemon = otherTrainer.getFirstActivePokemon();
+
+            if (myPokemon == null || opponentPokemon == null) break;
+
+            System.out.println(this.name + " utiliza " + myPokemon.getSpecie() + " contra " + otherTrainer.getName() + " con su pokemon " + opponentPokemon.getSpecie());
+
+            // Each Pokemon attacks the other
+            myPokemon.attack(opponentPokemon);
+            if (opponentPokemon.getEnergy() > 0) {
+                opponentPokemon.attack(myPokemon);
+            }
+
+
+            System.out.println(myPokemon.getSpecie() + " estado: energia = " + myPokemon.getEnergy());
+            System.out.println(opponentPokemon.getSpecie() + " estado: energia = " + opponentPokemon.getEnergy());
+        }
+
+
+        if (this.hasAlivePokemon() && !otherTrainer.hasAlivePokemon()) {
+
+            return this.name + " gano la batalla!";
+        } else if (!this.hasAlivePokemon() && otherTrainer.hasAlivePokemon()) {
+
+            return otherTrainer.getName() + " gano la batalla!";
+        } else {
+            System.out.println("La batalla termino, en empate!");
+            return "La batalla termino, en empate!";
+        }
+    }
+
+    public boolean hasAlivePokemon() {
+        return this.pokemonList.stream().anyMatch(pokemon -> pokemon.getEnergy() > 0);
     }
 
 
+    private Pokemon getFirstActivePokemon() {
+        return this.pokemonList.stream().filter(pokemon -> pokemon.getEnergy() > 0).findFirst().orElse(null);
+    }
 }

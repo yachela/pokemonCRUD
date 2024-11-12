@@ -79,7 +79,7 @@ public class TrainerDAOImplH2 implements TrainerDAO {
             preparedStatement.setString(1, String.valueOf(trainer.getName()));
             preparedStatement.setString(2, trainer.getBirthDate().toString());
             preparedStatement.setInt(3, trainer.getAge());
-            preparedStatement.setString(4, trainer.getNacionality());
+            preparedStatement.setString(4, trainer.getNationality());
             preparedStatement.setInt(5, trainer.getId());
 
             int rowsAffected = preparedStatement.executeUpdate();

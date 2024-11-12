@@ -1,19 +1,25 @@
 package ar.edu.davinci;
 
-import Model.Pokemon;
-
-public class Fire implements IType{
+public class Fire implements IType {
     @Override
-    public float damageMultiplicator(IType otherType) {
-        if (otherType.getClass().getSimpleName().equals("Plant")) {
-            return 0.2f;
-        } else {
-            return 1;
-        }
+    public float calculateDamage(IType opponentType) {
+        return opponentType.damageByFire();
     }
 
     @Override
-    public float takeDamage(IType aType) {
-        return 0;
+    public float receiveDamage(IType opponentType) {
+        return opponentType.damageToFire();
     }
+
+    public float damageByElectric() { return 1.0f; }
+    public float damageByWater() { return 1.0f; }
+    public float damageByFire() { return 1.0f; }
+    public float damageByPlant() { return 1.2f; } // 20% más de daño a planta
+    public float damageByStone() { return 1.0f; }
+
+    public float damageToElectric() { return 0.0f; }
+    public float damageToWater() { return 0.0f; }
+    public float damageToFire() { return 0.0f; }
+    public float damageToPlant() { return 0.0f; }
+    public float damageToStone() { return 0.0f; }
 }

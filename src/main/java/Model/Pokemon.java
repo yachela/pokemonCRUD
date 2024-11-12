@@ -1,7 +1,8 @@
 package Model;
 import ar.edu.davinci.IType;
+
 public class Pokemon {
-    private int id;
+    private int id;  // Atributo id para identificar al Pokémon en la base de datos
     private IType type;
     private float energy;
     private final float maxEnergy = 100;
@@ -9,77 +10,108 @@ public class Pokemon {
     private String specie;
     private Trainer trainer;
 
-
     public Pokemon(IType type, String specie) {
         if (type == null) {
             throw new IllegalArgumentException("El tipo no puede ser null");
         }
         this.type = type;
-        this.energy = 100;
+        this.energy = maxEnergy;
         this.power = 20;
         this.specie = specie;
         this.trainer = null;
     }
 
+    // Getter y Setter para el id
     public int getId() {
         return id;
     }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
 
     public IType getType() {
         return type;
     }
 
-    public Float getEnergy() {
+    public void setType(IType type) {
+        if (type == null) {
+            throw new IllegalArgumentException("El tipo no puede ser null");
+        }
+        this.type = type;
+    }
+
+    public float getEnergy() {
         return energy;
     }
 
-    public float getPower() {
-        return this.power;
+    public void setEnergy(float energy) {
+        if (energy < 0 || energy > maxEnergy) {
+            throw new IllegalArgumentException("La energía debe estar entre 0 y " + maxEnergy);
+        }
+        this.energy = energy;
     }
 
-    public void setTrainer(Trainer trainer) {
-            this.trainer = trainer;
-            trainer.pokemonCapture(this);
+    public float getPower() {
+        return power;
     }
+
+    public void setPower(float power) {
+        if (power < 0) {
+            throw new IllegalArgumentException("El poder no puede ser negativo");
+        }
+        this.power = power;
+    }
+
+    public String getSpecie() {
+        return specie;
+    }
+
+    public void setSpecie(String specie) {
+        if (specie == null || specie.isEmpty()) {
+            throw new IllegalArgumentException("La especie no puede ser null o vacía");
+        }
+        this.specie = specie;
+    }
+
     public Trainer getTrainer() {
         return trainer;
     }
 
-    public String getSpecie() {
-        return this.specie;
-    }
-
-    public String getTrainerToString() {
-        return trainer.getName();
+    public void setTrainer(Trainer trainer) {
+        this.trainer = trainer;
     }
 
     public void attack(Pokemon otherPokemon) {
-        otherPokemon.restLife(this.power * this.type.damageMultiplicator(otherPokemon.type));
-        this.restLife(this.energy * this.type.takeDamage(otherPokemon.type));
-        if (otherPokemon.isCapturable()){
-            this.trainer.pokemonCapture(otherPokemon);
+        float damage = this.power * this.type.calculateDamage(otherPokemon.getType());
+        otherPokemon.restLife(damage);
+
+        float selfDamage = this.energy * this.type.receiveDamage(otherPokemon.getType());
+        this.restLife(selfDamage);
+
+        if (otherPokemon.isCapturable()) {
+            this.trainer.capturePokemon(otherPokemon);
         }
     }
 
-    public boolean isCapturable(){
-        return this.getEnergy() <= 0.0;
+    public boolean isCapturable() {
+        return this.energy <= 0.0;
     }
 
-    public void restLife(float cant) {
-        if(cant<0){
-            throw new IllegalArgumentException("El dano no puede ser negativo");
+    public void restLife(float amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("El daño no puede ser negativo");
         }
-        this.energy -= cant;
+        this.energy = Math.max(0, this.energy - amount);
     }
 
-
-    public void healing() {
-        if (this.energy < 100) {
-            this.energy += 10;
-            if (this.energy > 100) {
-                this.energy = 100;
-            }
+    public void healing(float amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("La cantidad de curación no puede ser negativa");
         }
+        this.energy = Math.min(maxEnergy, this.energy + amount);
     }
+
 
 }
