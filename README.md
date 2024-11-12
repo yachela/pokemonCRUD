@@ -97,6 +97,7 @@ Además, se debe implementar la funcionalidad para que un Entrenador pueda captu
 - [x] Escribir pruebas unitarias para el método `faceTrainer`
 - [x] Escribir pruebas unitarias para los métodos de Pokemon
 - [x] Escribir pruebas unitarias para los métodos de Entrenador
-- [ ] Evitar que un entrenador con mismos datos se pueda crear dos veces en BD
-- [ ] Incluir logica de danios de hito 2 en cada typo
+- [x] Evitar que un entrenador con mismos datos se pueda crear dos veces en BD
+- [x] Incluir logica de danios de hito 2 en cada typo
 - [x] Implementar logica de capturar el pokemon cuando su vida llegue a 0.
+- [ ] Escribir pruebas unitarias del CRUD
