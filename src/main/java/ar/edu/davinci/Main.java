@@ -1,10 +1,9 @@
 package ar.edu.davinci;
 
-import DAO.PokemonDAOImplH2;
-import DAO.TrainerDAOImplH2;
-import Model.Pokemon;
-import Model.Trainer;
-import ar.edu.davinci.IType;
+import ar.edu.davinci.DAO.PokemonDAOImplH2;
+import ar.edu.davinci.DAO.TrainerDAOImplH2;
+import ar.edu.davinci.Model.Pokemon;
+import ar.edu.davinci.Model.Trainer;
 
 import java.time.LocalDate;
 
@@ -13,37 +12,37 @@ public class Main {
         PokemonDAOImplH2 pokemonDAO = new PokemonDAOImplH2();
         TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
 
-        Trainer ash = new Trainer("Ash Ketchum", LocalDate.of(1997, 5, 22), "Kanto");
-        Trainer misty = new Trainer("Misty", LocalDate.of(1998, 4, 10), "Cerulean");
-        trainerDAO.insertTrainer(ash);
-        trainerDAO.insertTrainer(misty);
+        Trainer casia = new Trainer("Casia", LocalDate.of(2006, 4, 22), "Argentina");
+        Trainer kuru = new Trainer("Kuru", LocalDate.of(1998, 4, 10), "Peru");
+        trainerDAO.insertTrainer(casia);
+        trainerDAO.insertTrainer(kuru);
 
         IType fireType = new Fire();
         IType waterType = new Water();
         IType electricType = new Electric();
 
         Pokemon pikachu = new Pokemon(electricType, "Pikachu");
-        pikachu.setTrainer(ash);
+        pikachu.setTrainer(casia);
         pokemonDAO.insertPokemon(pikachu);
 
         Pokemon charmander = new Pokemon(fireType, "Charmander");
-        charmander.setTrainer(ash);
+        charmander.setTrainer(casia);
         pokemonDAO.insertPokemon(charmander);
 
         Pokemon squirtle = new Pokemon(waterType, "Squirtle");
-        squirtle.setTrainer(misty);
+        squirtle.setTrainer(kuru);
         pokemonDAO.insertPokemon(squirtle);
 
-        System.out.println("\nPokémon capturados por " + ash.getName() + ":");
-        ash.capturePokemon(pikachu);
-        ash.capturePokemon(charmander);
+        System.out.println("\nPokémon capturados por " + casia.getName() + ":");
+        casia.capturePokemon(pikachu);
+        casia.capturePokemon(charmander);
 
-        System.out.println("\nPokémon capturados por " + misty.getName() + ":");
-        misty.capturePokemon(squirtle);
+        System.out.println("\nPokémon capturados por " + kuru.getName() + ":");
+        kuru.capturePokemon(squirtle);
 
 
-        System.out.println("\nEnfrentamiento entre " + ash.getName() + " y " + misty.getName() + ":");
-        String battleResult = ash.faceTrainer(misty);
+        System.out.println("\nEnfrentamiento entre " + casia.getName() + " y " + kuru.getName() + ":");
+        String battleResult = casia.faceTrainer(kuru);
         System.out.println("Resultado del enfrentamiento: " + battleResult);
 
 

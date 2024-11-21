@@ -1,7 +1,7 @@
-package DAO;
+package ar.edu.davinci.DAO;
 
-import Model.Pokemon;
-import Model.Trainer;
+import ar.edu.davinci.Model.Pokemon;
+import ar.edu.davinci.Model.Trainer;
 import ar.edu.davinci.IType;
 
 import java.sql.*;

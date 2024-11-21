@@ -1,7 +1,7 @@
 package ar.edu.davinci;
 
-import Model.Pokemon;
-import Model.Trainer;
+import ar.edu.davinci.Model.Pokemon;
+import ar.edu.davinci.Model.Trainer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

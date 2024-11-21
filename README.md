@@ -33,7 +33,6 @@ Un **Pokemon** entiende:
 Además del modelo, se pide implementar el **DAO** (Data Access Object) para cada entidad, incluyendo las operaciones de **CRUD** (Create, Read, Update, Delete) de cada una.
 
 # Hito 2
-
 ## Consigna
 Se pide extender el dominio del hito uno. Cada Pokémon tiene un poder vinculado, que tiene un costo de poder y produce un determinado daño. Además, la cantidad de daño va a depender del tipo:
 
@@ -44,6 +43,15 @@ Se pide extender el dominio del hito uno. Cada Pokémon tiene un poder vinculado
 
 Además, se debe implementar la funcionalidad para que un Entrenador pueda capturar un Pokémon (siempre y cuando no tenga más de 5 Pokémons capturados). Un Pokémon será capturado cuando llegue a 0 puntos de vida.
 
+# Hito 3
+
+Agregar la idea de Usuario. De un Usuario sabemos su email, su nombre completo, su nickname (único en el sistema) y su número de celular. Un usuario solo puede crear 3 Entrenadores con los cuales jugará.
+Cuando un Usuario quiere jugar, el sistema le permite enfrentarse a un Usuario random.
+
+
+Se pide agregar una batería de tests a las funcionalidades desarrolladas hasta el momento que no hayan sido probadas hasta el momento
+
+Utilizando Swing se pide dar una serie de ventanas que permitan acceder a las funcionalidades desarrolladas en los hitos anteriores (Agregar además un Register y un Login)
 ## Descripción del Modelo
 
 ### Clases a Modelar

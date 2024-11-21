@@ -1,8 +1,8 @@
-package Model;
+package ar.edu.davinci.Model;
 import ar.edu.davinci.IType;
 
 public class Pokemon {
-    private int id;  // Atributo id para identificar al Pokémon en la base de datos
+    private int id;
     private IType type;
     private float energy;
     private final float maxEnergy = 100;
@@ -21,7 +21,6 @@ public class Pokemon {
         this.trainer = null;
     }
 
-    // Getter y Setter para el id
     public int getId() {
         return id;
     }

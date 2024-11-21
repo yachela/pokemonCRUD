@@ -1,8 +1,7 @@
 package ar.edu.davinci;
 
-import Model.Pokemon;
-import Model.Trainer;
-import ar.edu.davinci.*;
+import ar.edu.davinci.Model.Pokemon;
+import ar.edu.davinci.Model.Trainer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,8 +19,8 @@ public class TestTrainer {
 
     @BeforeEach
     void setUp() {
-        trainer = new Trainer("Ash", LocalDate.of(2000, 5, 22), "Kanto");
-        opponentTrainer = new Trainer("Misty", LocalDate.of(2000, 8, 10), "Cerulean");
+        trainer = new Trainer("Aria", LocalDate.of(1989, 5, 20), "Galar");
+        opponentTrainer = new Trainer("Kael", LocalDate.of(1999, 4, 12), "Galola");
         fireType = new Fire();
         waterType = new Water();
         charmander = new Pokemon(fireType, "Charmander");
@@ -64,11 +63,10 @@ public class TestTrainer {
         trainer.capturePokemon(charmander);
         opponentTrainer.capturePokemon(squirtle);
 
-
         squirtle.restLife(100);
 
         String result = trainer.faceTrainer(opponentTrainer);
-        Assertions.assertEquals("Ash gano la batalla!", result);
+        Assertions.assertEquals("Aria gano la batalla!", result);
     }
 
     @Test
@@ -93,6 +91,6 @@ public class TestTrainer {
         charmander.restLife(100);
 
         String result = trainer.faceTrainer(opponentTrainer);
-        Assertions.assertEquals("Misty gano la batalla!", result);
+        Assertions.assertEquals("Kael gano la batalla!", result);
     }
 }

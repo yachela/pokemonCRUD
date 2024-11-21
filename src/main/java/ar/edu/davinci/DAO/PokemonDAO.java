@@ -1,5 +1,5 @@
-package DAO;
-import Model.Pokemon;
+package ar.edu.davinci.DAO;
+import ar.edu.davinci.Model.Pokemon;
 import java.util.List;
 
 public interface PokemonDAO {

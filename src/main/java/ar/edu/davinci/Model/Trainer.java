@@ -1,4 +1,4 @@
-package Model;
+package ar.edu.davinci.Model;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -74,7 +74,7 @@ public class Trainer {
         System.out.println(this.name + " esta enfrentando a  " + otherTrainer.getName());
 
         while (this.hasAlivePokemon() && otherTrainer.hasAlivePokemon()) {
-            // Each trainer selects their first active Pokemon
+
             Pokemon myPokemon = this.getFirstActivePokemon();
             Pokemon opponentPokemon = otherTrainer.getFirstActivePokemon();
 
@@ -82,7 +82,7 @@ public class Trainer {
 
             System.out.println(this.name + " utiliza " + myPokemon.getSpecie() + " contra " + otherTrainer.getName() + " con su pokemon " + opponentPokemon.getSpecie());
 
-            // Each Pokemon attacks the other
+
             myPokemon.attack(opponentPokemon);
             if (opponentPokemon.getEnergy() > 0) {
                 opponentPokemon.attack(myPokemon);

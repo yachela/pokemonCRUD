@@ -1,5 +1,5 @@
-package DAO;
-import Model.Trainer;
+package ar.edu.davinci.DAO;
+import ar.edu.davinci.Model.Trainer;
 import java.util.List;
 
  public interface TrainerDAO {

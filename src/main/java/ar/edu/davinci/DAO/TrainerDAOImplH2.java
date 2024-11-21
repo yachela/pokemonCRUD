@@ -1,7 +1,7 @@
-package DAO;
+package ar.edu.davinci.DAO;
 
-import Model.Pokemon;
-import Model.Trainer;
+import ar.edu.davinci.Model.Pokemon;
+import ar.edu.davinci.Model.Trainer;
 import ar.edu.davinci.IType;
 
 import java.sql.*;
@@ -84,10 +84,10 @@ public class TrainerDAOImplH2 implements TrainerDAO {
 
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
-                throw new RuntimeException("Pokemon with ID " + trainer.getId() + " not found");
+                throw new RuntimeException("Trainer with ID " + trainer.getId() + " not found");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error updating Pokemon: " + e.getMessage(), e);
+            throw new RuntimeException("Error updating trainer: " + e.getMessage(), e);
         }
 
     }
@@ -102,10 +102,10 @@ public class TrainerDAOImplH2 implements TrainerDAO {
 
                 int rowsAffected = preparedStatement.executeUpdate();
                 if (rowsAffected == 0) {
-                    throw new RuntimeException("Pokemon with ID " + trainerId + " not found");
+                    throw new RuntimeException("Trainer with ID " + trainerId + " not found");
                 }
             } catch (SQLException e) {
-                throw new RuntimeException("Error deleting Pokemon: " + e.getMessage(), e);
+                throw new RuntimeException("Error deleting Trainer: " + e.getMessage(), e);
             }
         }
 
