@@ -14,7 +14,7 @@ class TestUser {
         User user = new User("Lali", "123456789");
         Trainer trainer = user.createTrainer("Kael", "Kalos", LocalDate.of(1992, 8, 14));
 
-        Assertions.assertEquals(1, user.getTrainerList().size());
+        Assertions.assertEquals(1, user.getTrainers().size());
         Assertions.assertEquals("Kael", trainer.getName());
     }
 

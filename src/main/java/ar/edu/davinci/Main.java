@@ -2,8 +2,7 @@ package ar.edu.davinci;
 
 import ar.edu.davinci.DAO.PokemonDAOImplH2;
 import ar.edu.davinci.DAO.TrainerDAOImplH2;
-import ar.edu.davinci.Model.Pokemon;
-import ar.edu.davinci.Model.Trainer;
+import ar.edu.davinci.Model.*;
 
 import java.time.LocalDate;
 
@@ -18,7 +17,7 @@ public class Main {
         trainerDAO.insertTrainer(kuru);
 
         IType fireType = new Fire();
-        IType waterType = new Water();
+        IType waterType = new Pokemon.Water();
         IType electricType = new Electric();
 
         Pokemon pikachu = new Pokemon(electricType, "Pikachu");

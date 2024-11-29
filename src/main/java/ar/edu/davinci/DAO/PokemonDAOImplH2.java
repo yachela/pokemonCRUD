@@ -2,7 +2,7 @@ package ar.edu.davinci.DAO;
 
 import ar.edu.davinci.Model.Pokemon;
 import ar.edu.davinci.Model.Trainer;
-import ar.edu.davinci.IType;
+import ar.edu.davinci.Model.IType;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -20,15 +20,7 @@ public class PokemonDAOImplH2 implements PokemonDAO {
         try {
             this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
             Statement statement = connection.createStatement();
-            String createTableQuery = "CREATE TABLE IF NOT EXISTS pokemon (" +
-                    "id INT AUTO_INCREMENT PRIMARY KEY, " +
-                    "type VARCHAR(50), " +
-                    "energy FLOAT DEFAULT 100, " +
-                    "power INT, " +
-                    "specie VARCHAR(100), " +
-                    "trainer_id INT, " +
-                    "FOREIGN KEY (trainer_id) REFERENCES trainer(id)" +
-                    ")";
+            String createTableQuery = "CREATE TABLE IF NOT EXISTS pokemon (" + "id INT AUTO_INCREMENT PRIMARY KEY, " + "type VARCHAR(50), " + "energy FLOAT DEFAULT 100, " + "power INT, " + "specie VARCHAR(100), " + "trainer_id INT, " + "FOREIGN KEY (trainer_id) REFERENCES trainer(id)" + ")";
             statement.executeUpdate(createTableQuery);
             statement.close();
             connection.close();
@@ -108,8 +100,7 @@ public class PokemonDAOImplH2 implements PokemonDAO {
 
         try {
             this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            String selectQuery = "SELECT p.*, t.id AS trainer_id, t.name AS trainer_name, t.birth_date, t.nationality " +
-                    "FROM pokemon p LEFT JOIN trainer t ON p.trainer_id = t.id";
+            String selectQuery = "SELECT p.*, t.id AS trainer_id, t.name AS trainer_name, t.birth_date, t.nationality " + "FROM pokemon p LEFT JOIN trainer t ON p.trainer_id = t.id";
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(selectQuery);
 

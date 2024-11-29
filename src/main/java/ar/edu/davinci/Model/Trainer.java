@@ -31,9 +31,14 @@ public class Trainer {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public int getAge() {
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
+
 
     public String getNationality() {
         return nationality;
@@ -114,4 +119,6 @@ public class Trainer {
     private Pokemon getFirstActivePokemon() {
         return this.pokemonList.stream().filter(pokemon -> pokemon.getEnergy() > 0).findFirst().orElse(null);
     }
+
+
 }

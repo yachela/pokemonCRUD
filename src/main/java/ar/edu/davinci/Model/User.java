@@ -18,6 +18,26 @@ public class User  {
         this.trainerList = new ArrayList<>();
     }
 
+    public User() {
+        this.trainerList = new ArrayList<>();
+    }
+
+
+    public User(int id, String name, String phone, String password) {
+        this.id = id;
+        this.name = name;
+        this.phone = phone;
+        this.password = password;
+    }
+
+    public User(String name, String phone, String password) {
+
+        this.name = name;
+        this.phone = phone;
+        this.password = password;
+    }
+
+
     public int getId() {
         return id;
     }
@@ -40,13 +60,19 @@ public class User  {
     public String getPassword() {
         return password;
     }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
-    public List<Trainer> getTrainerList() {
+    public List<Trainer> getTrainers() {
         return trainerList;
+    }
+    public void setTrainers(List<Trainer> trainers) {
+        this.trainerList = trainers;
     }
 
     public Trainer createTrainer(String aName, String aNationality, LocalDate aBirthDate) {

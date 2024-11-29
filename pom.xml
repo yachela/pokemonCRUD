@@ -33,7 +33,6 @@
             <artifactId>h2</artifactId>
             <version>2.1.210</version>
         </dependency>
-        <!-- JDBC -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
