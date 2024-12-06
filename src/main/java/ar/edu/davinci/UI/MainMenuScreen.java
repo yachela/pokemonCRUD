@@ -7,6 +7,7 @@ import ar.edu.davinci.Model.Trainer;
 import ar.edu.davinci.Model.User;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -17,8 +18,9 @@ public class MainMenuScreen {
     private JButton misPokemonsButton;
     private JButton cerrarSesionButton;
     private UserDAOImplH2 userDAO;
+    private BattleManager battleManager;
 
-    public MainMenuScreen(JFrame frame) {
+    public MainMenuScreen(JFrame frame, BattleManager battleManager) {
         mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
@@ -33,7 +35,7 @@ public class MainMenuScreen {
         jugarPartidaButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                simulateBattle();
+                simulateBattle(battleManager);
             }
         });
 
@@ -49,9 +51,7 @@ public class MainMenuScreen {
                 if (misPokemons.isEmpty()) {
                     JOptionPane.showMessageDialog(mainPanel, "Ninguno de tus entrenadores tiene Pokemons");
                 } else {
-                    misPokemons.forEach(pokemon -> JOptionPane.showMessageDialog(mainPanel, pokemon.getType() + "/n"
-                    ));
-
+                    misPokemons.forEach(pokemon -> JOptionPane.showMessageDialog(mainPanel, pokemon.getType() + "\n"));
                 }
             }
         });
@@ -65,16 +65,15 @@ public class MainMenuScreen {
         });
     }
 
-    private void simulateBattle() {
+    private void simulateBattle(BattleManager battleManager) {
         User currentUser = LoginScreen.getCurrentUser();
         Trainer currentTrainer = selectTrainer(currentUser);
         if (currentTrainer == null) {
             JOptionPane.showMessageDialog(mainPanel, "No seleccionaste un entrenador");
             return;
         }
-        BattleManager battleManager = new BattleManager();
-        List<User> users = userDAO.getAllUsers();
-        User opponent = battleManager.findRandomOpponent(currentUser, users);
+
+        User opponent = battleManager.findRandomOpponent(currentUser);
         Trainer opponentTrainer = selectTrainer(opponent);
         if (opponentTrainer == null) {
             JOptionPane.showMessageDialog(mainPanel, "El oponente no tiene entrenadores disponibles.");
@@ -108,23 +107,25 @@ public class MainMenuScreen {
                     trainerNames[0]
             );
 
-
             return trainers.stream()
                     .filter(trainer -> trainer.getName().equals(selectedTrainerName))
                     .findFirst()
                     .orElse(null);
         } else {
+
             int randomIndex = (int) (Math.random() * trainers.size());
             return trainers.get(randomIndex);
         }
     }
 
     public static void show(JFrame frame) {
-        frame.setContentPane(new MainMenuScreen(frame).mainPanel);
+        MainMenuScreen mainMenuScreen = new MainMenuScreen(frame, new BattleManager(new UserDAOImplH2()));
+        frame.setContentPane(mainMenuScreen.getMainPanel());
         frame.revalidate();
+        frame.repaint();
     }
 
-    public JPanel getMainPanel() {
+    public Container getMainPanel() {
         return mainPanel;
     }
 }

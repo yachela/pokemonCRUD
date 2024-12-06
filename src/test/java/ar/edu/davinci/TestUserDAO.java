@@ -33,14 +33,14 @@ public class TestUserDAO {
 
     @Test
     public void testUpdateUser() {
-        User user = new User("Charlie", "111222333", "password789");
+        User user = new User("Charly", "111222333", "password789");
         userDAO.insertUser(user);
 
-        user.setName("Charlie Up");
+        user.setName("Charlie");
         user.setPhone("999888777");
         userDAO.updateUser(user);
 
-        User updatedUser = userDAO.getUserByUsername("Charlie Up");
+        User updatedUser = userDAO.getUserByUsername("Charlie");
         assertNotNull(updatedUser, "El usuario actualizado deberia existir en la base de datos.");
         assertEquals("999888777", updatedUser.getPhone(), "El telefono deberia actualizarse");
     }

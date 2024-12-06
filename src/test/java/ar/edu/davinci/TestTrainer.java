@@ -1,7 +1,7 @@
 package ar.edu.davinci;
 
 import ar.edu.davinci.Model.Fire;
-import ar.edu.davinci.Model.IType;
+import ar.edu.davinci.Interface.IType;
 import ar.edu.davinci.Model.Pokemon;
 import ar.edu.davinci.Model.Trainer;
 import org.junit.jupiter.api.Assertions;

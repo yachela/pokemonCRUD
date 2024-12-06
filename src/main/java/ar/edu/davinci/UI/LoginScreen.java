@@ -1,5 +1,6 @@
 package ar.edu.davinci.UI;
 
+import ar.edu.davinci.DAO.BattleManager;
 import ar.edu.davinci.DAO.UserDAOImplH2;
 import ar.edu.davinci.Model.User;
 
@@ -36,7 +37,6 @@ public class LoginScreen {
     private void handleLogin() {
         String userName = userNameTextField.getText();
         String userPassword = new String(passwordTextField.getPassword());
-
         User user = userDAO.getUserByUsername(userName);
 
         if (user != null && userPassword.equals(user.getPassword())) {
@@ -61,4 +61,5 @@ public class LoginScreen {
         frame.setSize(300, 200);
         frame.setVisible(true);
     }
+
 }

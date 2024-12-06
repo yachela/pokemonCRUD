@@ -1,5 +1,6 @@
 package ar.edu.davinci;
 
+import ar.edu.davinci.Interface.IType;
 import ar.edu.davinci.Model.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +19,8 @@ class TestPokemon {
         ash = new Trainer("Ash Ketchum", LocalDate.of(2000, 5, 22), "Kanto");
         fireType = new Fire();
         electricType = new Electric();
-        waterType = new Pokemon.Water();
-        stoneType = new Electric.Stone();
+        waterType = new Water();
+        stoneType = new Stone();
         plantType = new Plant();
 
         waterPokemon = new Pokemon(waterType, "Bulbasaur");

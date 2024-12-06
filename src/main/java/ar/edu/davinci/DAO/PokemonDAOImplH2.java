@@ -2,7 +2,7 @@ package ar.edu.davinci.DAO;
 
 import ar.edu.davinci.Model.Pokemon;
 import ar.edu.davinci.Model.Trainer;
-import ar.edu.davinci.Model.IType;
+import ar.edu.davinci.Interface.IType;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -13,65 +13,146 @@ public class PokemonDAOImplH2 implements PokemonDAO {
     private static final String URL = "jdbc:h2:tcp://localhost/~/test";
     private static final String USER = "sa";
     private static final String PASSWORD = "";
-    private static final String TABLE_NAME = "pokemon";
-    private Connection connection;
 
     public PokemonDAOImplH2() {
-        try {
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            Statement statement = connection.createStatement();
-            String createTableQuery = "CREATE TABLE IF NOT EXISTS pokemon (" + "id INT AUTO_INCREMENT PRIMARY KEY, " + "type VARCHAR(50), " + "energy FLOAT DEFAULT 100, " + "power INT, " + "specie VARCHAR(100), " + "trainer_id INT, " + "FOREIGN KEY (trainer_id) REFERENCES trainer(id)" + ")";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()) {
+            String createTableQuery = """
+                CREATE TABLE IF NOT EXISTS pokemon (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    type VARCHAR(50),
+                    energy FLOAT DEFAULT 100,
+                    power INT,
+                    specie VARCHAR(100),
+                    trainer_id INT,
+                    FOREIGN KEY (trainer_id) REFERENCES trainer(id)
+                )
+            """;
             statement.executeUpdate(createTableQuery);
-            statement.close();
-            connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Error initializing Pokemon table: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void insertPokemon(Pokemon pokemon) {
-        try {
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            String insertQuery = "INSERT INTO pokemon (type, power, specie, trainer_id) VALUES (?, ?, ?, ?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "INSERT INTO pokemon (type, power, specie, trainer_id) VALUES (?, ?, ?, ?)",
+                     Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, pokemon.getType().getClass().getSimpleName());
             preparedStatement.setFloat(2, pokemon.getPower());
             preparedStatement.setString(3, pokemon.getSpecie());
-            preparedStatement.setInt(4, pokemon.getTrainer().getId());
-            preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void updatePokemon(Pokemon pokemon) {
-        try {
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            String updateQuery = "UPDATE pokemon SET type = ?, power = ?, specie = ?, trainer_id = ? WHERE id = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);
-            preparedStatement.setString(1, pokemon.getType().getClass().getSimpleName());
-            preparedStatement.setFloat(2, pokemon.getPower());
-            preparedStatement.setString(3, pokemon.getSpecie());
-
             if (pokemon.getTrainer() != null) {
                 preparedStatement.setInt(4, pokemon.getTrainer().getId());
             } else {
                 preparedStatement.setNull(4, Types.INTEGER);
             }
+            preparedStatement.executeUpdate();
 
+            ResultSet keys = preparedStatement.getGeneratedKeys();
+            if (keys.next()) {
+                pokemon.setId(keys.getInt(1));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error inserting Pokemon: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Pokemon getPokemonById(int pokemonId) {
+        Pokemon pokemon = null;
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM pokemon WHERE id = ?")) {
+
+            preparedStatement.setInt(1, pokemonId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String typeStr = resultSet.getString("type");
+                IType type = IType.fromString(typeStr);
+                String specie = resultSet.getString("specie");
+                float energy = resultSet.getFloat("energy");
+                float power = resultSet.getFloat("power");
+                int trainerId = resultSet.getInt("trainer_id");
+
+                Trainer trainer = null;
+                if (!resultSet.wasNull()) {
+                    trainer = new TrainerDAOImplH2().getTrainerById(trainerId);
+                }
+
+                pokemon = new Pokemon(type, specie);
+                pokemon.setId(pokemonId);
+                pokemon.setEnergy(energy);
+                pokemon.setPower(power);
+                pokemon.setTrainer(trainer);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching Pokemon by ID: " + e.getMessage(), e);
+        }
+        return pokemon;
+    }
+
+    @Override
+    public List<Pokemon> getAllPokemons() {
+        List<Pokemon> pokemons = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("""
+                 SELECT p.*, t.id AS trainer_id, t.name AS trainer_name, t.birth_date, t.nationality 
+                 FROM pokemon p 
+                 LEFT JOIN trainer t ON p.trainer_id = t.id
+             """)) {
+
+            while (resultSet.next()) {
+                String typeStr = resultSet.getString("type");
+                IType type = IType.fromString(typeStr);
+                String specie = resultSet.getString("specie");
+                float power = resultSet.getFloat("power");
+                float energy = resultSet.getFloat("energy");
+                int pokemonId = resultSet.getInt("id");
+
+                Trainer trainer = null;
+                int trainerId = resultSet.getInt("trainer_id");
+                if (!resultSet.wasNull()) {
+                    trainer = new TrainerDAOImplH2().getTrainerById(trainerId);
+                }
+
+                Pokemon pokemon = new Pokemon(type, specie);
+                pokemon.setId(pokemonId);
+                pokemon.setEnergy(energy);
+                pokemon.setPower(power);
+                pokemon.setTrainer(trainer);
+
+                pokemons.add(pokemon);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching all Pokemons: " + e.getMessage(), e);
+        }
+        return pokemons;
+    }
+
+    @Override
+    public void updatePokemon(Pokemon pokemon) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "UPDATE pokemon SET type = ?, power = ?, specie = ?, trainer_id = ? WHERE id = ?")) {
+
+            preparedStatement.setString(1, pokemon.getType().getClass().getSimpleName());
+            preparedStatement.setFloat(2, pokemon.getPower());
+            preparedStatement.setString(3, pokemon.getSpecie());
+            if (pokemon.getTrainer() != null) {
+                preparedStatement.setInt(4, pokemon.getTrainer().getId());
+            } else {
+                preparedStatement.setNull(4, Types.INTEGER);
+            }
             preparedStatement.setInt(5, pokemon.getId());
 
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
                 throw new RuntimeException("Pokemon with ID " + pokemon.getId() + " not found");
             }
-
-            preparedStatement.close();
-            connection.close();
         } catch (SQLException e) {
             throw new RuntimeException("Error updating Pokemon: " + e.getMessage(), e);
         }
@@ -79,10 +160,9 @@ public class PokemonDAOImplH2 implements PokemonDAO {
 
     @Override
     public void deletePokemon(int pokemonId) {
-        try {
-            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            String deleteQuery = "DELETE FROM pokemon WHERE id = ?";
-            PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM pokemon WHERE id = ?")) {
+
             preparedStatement.setInt(1, pokemonId);
 
             int rowsAffected = preparedStatement.executeUpdate();
@@ -95,49 +175,43 @@ public class PokemonDAOImplH2 implements PokemonDAO {
     }
 
     @Override
-    public List<Pokemon> getAllPokemons() {
-        List<Pokemon> pokemons = new ArrayList<>();
-
-        try {
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            String selectQuery = "SELECT p.*, t.id AS trainer_id, t.name AS trainer_name, t.birth_date, t.nationality " + "FROM pokemon p LEFT JOIN trainer t ON p.trainer_id = t.id";
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(selectQuery);
-
-            while (resultSet.next()) {
-                String typeStr = resultSet.getString("type");
-                IType type = null;
-                if (typeStr != null && !typeStr.trim().isEmpty()) {
-                    type = IType.fromString(typeStr);
-                } else {
-                    System.out.println("Tipo desconocido o nulo para el Pokémon con ID: " + resultSet.getInt("id"));
-                    continue;
-                }
-
-                Float power = resultSet.getFloat("power");
-                String specie = resultSet.getString("specie");
-                int id = resultSet.getInt("id");
-
-                Trainer trainer = null;
-                int trainerId = resultSet.getInt("trainer_id");
-                if (!resultSet.wasNull()) {
-                    String trainerName = resultSet.getString("trainer_name");
-                    LocalDate birthDate = resultSet.getDate("birth_date").toLocalDate();
-                    String nationality = resultSet.getString("nationality");
-                    trainer = new Trainer(trainerName, birthDate, nationality);
-                    trainer.setId(trainerId);
-                }
-
-                Pokemon pokemon = new Pokemon(type, specie);
-                pokemon.setTrainer(trainer);
-                pokemons.add(pokemon);
-            }
-            resultSet.close();
-            statement.close();
-            connection.close();
-        } catch (SQLException e) {
-            throw new RuntimeException("Error getting all Pokemons: " + e.getMessage(), e);
+    public boolean capturePokemon(int trainerId, int pokemonId) {
+        Pokemon pokemon = getPokemonById(pokemonId);
+        if (pokemon.getEnergy() > 0) {
+            throw new IllegalStateException("El Pokémon no es capturable porque aún tiene energía > 0");
         }
-        return pokemons;
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "INSERT INTO trainer_pokemon (trainer_id, pokemon_id) VALUES (?, ?)")) {
+
+            preparedStatement.setInt(1, trainerId);
+            preparedStatement.setInt(2, pokemonId);
+            preparedStatement.executeUpdate();
+
+            return true;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error capturing Pokemon: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public String battlePokemons(int pokemon1Id, int pokemon2Id) {
+        Pokemon pokemon1 = getPokemonById(pokemon1Id);
+        Pokemon pokemon2 = getPokemonById(pokemon2Id);
+
+        if (pokemon1 == null || pokemon2 == null) {
+            return "Uno de los Pokémon no existe.";
+        }
+
+        while (pokemon1.getEnergy() > 0 && pokemon2.getEnergy() > 0) {
+            pokemon1.attack(pokemon2);
+            if (pokemon2.getEnergy() > 0) {
+                pokemon2.attack(pokemon1);
+            }
+        }
+
+        String winner = pokemon1.getEnergy() > 0 ? pokemon1.getSpecie() : pokemon2.getSpecie();
+        return "La batalla ha terminado. El ganador es: " + winner;
     }
 }

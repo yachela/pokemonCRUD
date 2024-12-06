@@ -1,53 +1,24 @@
 package ar.edu.davinci.Model;
 
-public class Fire implements IType {
-    @Override
-    public float calculateDamage(IType opponentType) {
-        return opponentType.damageByFire();
-    }
+public class Fire extends Type {
 
     @Override
-    public float receiveDamage(IType opponentType) {
-        return opponentType.damageToFire();
+    public String getTypeName() {
+        return "Fire";
     }
 
-    public float damageByElectric() {
-        return 1.0f;
+    @Override
+    public float damageBy(String type) {
+        switch (type) {
+            case "Plant":
+                return 1.2f;
+            default:
+                return super.damageBy(type);
+        }
     }
 
-    public float damageByWater() {
-        return 1.0f;
-    }
-
-    public float damageByFire() {
-        return 1.0f;
-    }
-
-    public float damageByPlant() {
-        return 1.2f;
-    }
-
-    public float damageByStone() {
-        return 1.0f;
-    }
-
-    public float damageToElectric() {
-        return 0.0f;
-    }
-
-    public float damageToWater() {
-        return 0.0f;
-    }
-
-    public float damageToFire() {
-        return 0.0f;
-    }
-
-    public float damageToPlant() {
-        return 0.0f;
-    }
-
-    public float damageToStone() {
-        return 0.0f;
+    @Override
+    public float damageTo(String type) {
+        return super.damageTo(type);
     }
 }

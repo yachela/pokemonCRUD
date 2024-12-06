@@ -9,8 +9,13 @@ public interface PokemonDAO {
 
     List<Pokemon> getAllPokemons();
 
+    Pokemon getPokemonById(int pokemonID);
+
     void updatePokemon(Pokemon pokemon);
 
     void deletePokemon(int pokemonID);
-}
 
+    boolean capturePokemon(int trainerId, int pokemonId);
+
+    String battlePokemons(int pokemon1Id, int pokemon2Id);
+}

@@ -1,66 +1,36 @@
-package ar.edu.davinci;
+package ar.edu.davinci.UI;
 
-import ar.edu.davinci.DAO.PokemonDAOImplH2;
-import ar.edu.davinci.DAO.TrainerDAOImplH2;
-import ar.edu.davinci.Model.*;
+import ar.edu.davinci.DAO.BattleManager;
+import ar.edu.davinci.DAO.UserDAOImplH2;
+import ar.edu.davinci.Model.User;
 
-import java.time.LocalDate;
+import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        PokemonDAOImplH2 pokemonDAO = new PokemonDAOImplH2();
-        TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
 
-        Trainer casia = new Trainer("Casia", LocalDate.of(2006, 4, 22), "Argentina");
-        Trainer kuru = new Trainer("Kuru", LocalDate.of(1998, 4, 10), "Peru");
-        trainerDAO.insertTrainer(casia);
-        trainerDAO.insertTrainer(kuru);
+        JFrame frame = new JFrame("Pokemon Trainer Battle");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.setLocationRelativeTo(null);
 
-        IType fireType = new Fire();
-        IType waterType = new Pokemon.Water();
-        IType electricType = new Electric();
+        UserDAOImplH2 userDAO = new UserDAOImplH2();
+        BattleManager battleManager = new BattleManager(userDAO);
 
-        Pokemon pikachu = new Pokemon(electricType, "Pikachu");
-        pikachu.setTrainer(casia);
-        pokemonDAO.insertPokemon(pikachu);
+        User currentUser = userDAO.getUserByUsername("Ash");
 
-        Pokemon charmander = new Pokemon(fireType, "Charmander");
-        charmander.setTrainer(casia);
-        pokemonDAO.insertPokemon(charmander);
+        if (currentUser == null) {
+            JOptionPane.showMessageDialog(null, "Usuario no encontrado. Por favor, inicia sesión.");
+            frame.setContentPane(new LoginScreen().getMainPanel());
+        } else {
 
-        Pokemon squirtle = new Pokemon(waterType, "Squirtle");
-        squirtle.setTrainer(kuru);
-        pokemonDAO.insertPokemon(squirtle);
-
-        System.out.println("\nPokémon capturados por " + casia.getName() + ":");
-        casia.capturePokemon(pikachu);
-        casia.capturePokemon(charmander);
-
-        System.out.println("\nPokémon capturados por " + kuru.getName() + ":");
-        kuru.capturePokemon(squirtle);
+            LoginScreen.setCurrentUser(currentUser);
 
 
-        System.out.println("\nEnfrentamiento entre " + casia.getName() + " y " + kuru.getName() + ":");
-        String battleResult = casia.faceTrainer(kuru);
-        System.out.println("Resultado del enfrentamiento: " + battleResult);
-
-
-        System.out.println("\nLista de todos los Pokémon en la base de datos:");
-        for (Pokemon pokemon : pokemonDAO.getAllPokemons()) {
-            System.out.println("ID: " + pokemon.getId());
-            System.out.println("Especie: " + pokemon.getSpecie());
-            System.out.println("Tipo: " + pokemon.getType().getClass().getSimpleName());
-            System.out.println("Entrenador: " + (pokemon.getTrainer() != null ? pokemon.getTrainer().getName() : "Sin entrenador"));
-            System.out.println("Energía: " + pokemon.getEnergy());
-            System.out.println("Power: " + pokemon.getPower());
-            System.out.println("------");
+            MainMenuScreen mainMenu = new MainMenuScreen(frame, battleManager);
+            frame.setContentPane(mainMenu.getMainPanel());
         }
 
-
-        pikachu.setEnergy(50);
-        pokemonDAO.updatePokemon(pikachu);
-
-        System.out.println("\nEliminando a Charmander de la base de datos...");
-        pokemonDAO.deletePokemon(charmander.getId());
+        frame.setVisible(true);
     }
 }

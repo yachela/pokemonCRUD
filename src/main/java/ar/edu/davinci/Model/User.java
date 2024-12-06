@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class User  {
+public class User {
 
     private int id;
     private String name;
@@ -21,7 +21,6 @@ public class User  {
     public User() {
         this.trainerList = new ArrayList<>();
     }
-
 
     public User(int id, String name, String phone, String password) {
         this.id = id;
@@ -57,9 +56,11 @@ public class User  {
     public String getPhone() {
         return phone;
     }
+
     public String getPassword() {
         return password;
     }
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -71,6 +72,7 @@ public class User  {
     public List<Trainer> getTrainers() {
         return trainerList;
     }
+
     public void setTrainers(List<Trainer> trainers) {
         this.trainerList = trainers;
     }
