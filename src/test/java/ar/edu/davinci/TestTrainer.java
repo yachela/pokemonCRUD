@@ -4,6 +4,7 @@ import ar.edu.davinci.Model.Fire;
 import ar.edu.davinci.Interface.IType;
 import ar.edu.davinci.Model.Pokemon;
 import ar.edu.davinci.Model.Trainer;
+import ar.edu.davinci.Model.Water;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +25,7 @@ public class TestTrainer {
         trainer = new Trainer("Aria", LocalDate.of(1989, 5, 20), "Galar");
         opponentTrainer = new Trainer("Kael", LocalDate.of(1999, 4, 12), "Galola");
         fireType = new Fire();
-        waterType = new Pokemon.Water();
+        waterType = new Water();
         charmander = new Pokemon(fireType, "Charmander");
         squirtle = new Pokemon(waterType, "Squirtle");
     }

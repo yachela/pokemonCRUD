@@ -25,7 +25,7 @@ public class TestPokemonDao {
     public void testInsertPokemon() {
         Trainer trainer = new Trainer("Ash", null, "Kanto");
         trainer.setId(1);
-        Pokemon pokemon = new Pokemon(new Pokemon.Water(), "Squirtle");
+        Pokemon pokemon = new Pokemon(new Water(), "Squirtle");
         pokemon.setTrainer(trainer);
 
         assertDoesNotThrow(() -> pokemonDAO.insertPokemon(pokemon));

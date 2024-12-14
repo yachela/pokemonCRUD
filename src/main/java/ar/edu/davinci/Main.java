@@ -1,15 +1,16 @@
-package ar.edu.davinci.UI;
+package ar.edu.davinci;
 
 import ar.edu.davinci.DAO.BattleManager;
 import ar.edu.davinci.DAO.UserDAOImplH2;
-import ar.edu.davinci.Model.User;
+import ar.edu.davinci.UI.LoginScreen;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 
 public class Main {
     public static void main(String[] args) {
-
-        JFrame frame = new JFrame("Pokemon Trainer Battle");
+        JFrame frame = new JFrame("Pokemon Batallas");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLocationRelativeTo(null);
@@ -17,20 +18,18 @@ public class Main {
         UserDAOImplH2 userDAO = new UserDAOImplH2();
         BattleManager battleManager = new BattleManager(userDAO);
 
-        User currentUser = userDAO.getUserByUsername("Ash");
-
-        if (currentUser == null) {
-            JOptionPane.showMessageDialog(null, "Usuario no encontrado. Por favor, inicia sesión.");
-            frame.setContentPane(new LoginScreen().getMainPanel());
-        } else {
-
-            LoginScreen.setCurrentUser(currentUser);
-
-
-            MainMenuScreen mainMenu = new MainMenuScreen(frame, battleManager);
-            frame.setContentPane(mainMenu.getMainPanel());
-        }
+        LoginScreen loginScreen = new LoginScreen(frame, userDAO, battleManager);
+        frame.setContentPane(createStyledPanel(loginScreen.getMainPanel()));
 
         frame.setVisible(true);
+    }
+
+    private static JPanel createStyledPanel(JPanel mainPanel) {
+
+        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
+
+        mainPanel.setBackground(new Color(255, 197, 73));
+
+        return mainPanel;
     }
 }

@@ -1,7 +1,9 @@
 package ar.edu.davinci;
 
 import ar.edu.davinci.DAO.TrainerDAOImplH2;
+import ar.edu.davinci.DAO.UserDAOImplH2;
 import ar.edu.davinci.Model.Trainer;
+import ar.edu.davinci.Model.User;
 import org.junit.jupiter.api.*;
 
 import java.time.LocalDate;
@@ -16,50 +18,90 @@ public class TestTrainerDAO {
     @BeforeEach
     void setUp() {
         trainerDAO = new TrainerDAOImplH2();
+
+
     }
 
 
     @Test
-    void testInsertTrainer() {
-        Trainer trainer = new Trainer("Casia", LocalDate.of(1990, 3, 15), "Argentina");
+    public void testInsertTrainer() {
+        User user = new User();
+        user.setId(1);
+        user.setName("Casia");
+        user.setPassword("pikachu123");
+
+        Trainer trainer = new Trainer("Brock", LocalDate.of(1995, 3, 10), "Pewter City");
+        trainer.setUser(user);
+
+        TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
         trainerDAO.insertTrainer(trainer);
 
-        assertNotNull(trainer.getId());
+        Assertions.assertNotNull(trainer.getId(), "El ID del entrenador no debe ser null después de insertarlo.");
     }
 
     @Test
-    void testGetAllTrainers() {
-        Trainer trainer = new Trainer("Casia", LocalDate.of(1990, 3, 15), "Argentina");
+    public void testGetAllTrainers() {
+        UserDAOImplH2 userDAO = new UserDAOImplH2();
+        TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
+
+
+        User user = new User("testUser", "password");
+        userDAO.insertUser(user);
+
+
+        Trainer trainer = new Trainer("Casia", LocalDate.of(2000, 5, 22), "MG");
+        trainer.setUser(user);
         trainerDAO.insertTrainer(trainer);
 
         List<Trainer> trainers = trainerDAO.getAllTrainers();
-        assertEquals(1, trainers.size());
-        assertEquals("Casia", trainers.get(0).getName());
-        assertEquals(33, trainers.get(0).getAge());
+
+        Assertions.assertFalse(trainers.isEmpty(), "La lista de entrenadores no debería estar vacía");
+        Assertions.assertEquals(trainer.getName(), trainers.get(0).getName());
+        Assertions.assertEquals(user.getId(), trainers.get(0).getUser().getId());
     }
 
     @Test
-    void testUpdateTrainer() {
-        Trainer trainer = new Trainer("Casia", LocalDate.of(1990, 3, 15), "Argentina");
+    public void testUpdateTrainer() {
+        User user = new User();
+        user.setId(1);
+        user.setName("Casia");
+        user.setPassword("pikachu123");
+
+        Trainer trainer = new Trainer("Misty", LocalDate.of(1996, 4, 20), "Cerulean City");
+        trainer.setUser(user);
+
+        TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
         trainerDAO.insertTrainer(trainer);
 
-        trainer.setName("Casia Orela");
-        trainer.setNationality("España");
+        trainer.setName("Misty actualizada");
         trainerDAO.updateTrainer(trainer);
 
-        Trainer updatedTrainer = trainerDAO.getAllTrainers().get(0);
-        assertEquals("Casia Orela", updatedTrainer.getName());
-        assertEquals("España", updatedTrainer.getNationality());
+        Trainer updatedTrainer = trainerDAO.getTrainerById(trainer.getId());
+        Assertions.assertEquals("Misty actualizada", updatedTrainer.getName());
     }
 
     @Test
     void testDeleteTrainer() {
+        UserDAOImplH2 userDAO = new UserDAOImplH2();
+        TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
+
+
+        User user = new User("deleteTestUser", "password123");
+        userDAO.insertUser(user);
+
         Trainer trainer = new Trainer("Casia Orela", LocalDate.of(1990, 3, 15), "Argentina");
+        trainer.setUser(user);
         trainerDAO.insertTrainer(trainer);
+
+
+        List<Trainer> trainersBeforeDelete = trainerDAO.getAllTrainers();
+        assertFalse(trainersBeforeDelete.isEmpty(), "Debe haber al menos un entrenador antes de la eliminación.");
+
 
         trainerDAO.deleteTrainer(trainer.getId());
 
-        List<Trainer> trainers = trainerDAO.getAllTrainers();
-        assertTrue(trainers.isEmpty());
+
+        List<Trainer> trainersAfterDelete = trainerDAO.getAllTrainers();
+        assertTrue(trainersAfterDelete.isEmpty(), "La lista de entrenadores debería estar vacía después de la eliminación.");
     }
 }

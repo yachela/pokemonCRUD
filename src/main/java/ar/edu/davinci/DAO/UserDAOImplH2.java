@@ -189,4 +189,27 @@ public class UserDAOImplH2 implements UserDAO {
         }
         return trainers;
     }
+
+    public User getUserById(int userId) {
+        String query = "SELECT * FROM users WHERE id = ?";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                String phone = resultSet.getString("phone");
+                String password = resultSet.getString("password");
+
+                User user = new User(id, name, phone, password);
+                return user;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener el usuario por ID: " + e.getMessage(), e);
+        }
+        return null;
+    }
 }

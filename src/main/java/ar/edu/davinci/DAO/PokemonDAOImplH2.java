@@ -88,7 +88,7 @@ public class PokemonDAOImplH2 implements PokemonDAO {
                 pokemon.setTrainer(trainer);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error fetching Pokemon by ID: " + e.getMessage(), e);
+            throw new RuntimeException("Error looking for Pokemon by ID: " + e.getMessage(), e);
         }
         return pokemon;
     }
@@ -128,7 +128,7 @@ public class PokemonDAOImplH2 implements PokemonDAO {
                 pokemons.add(pokemon);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error fetching all Pokemons: " + e.getMessage(), e);
+            throw new RuntimeException("Error loooking for all Pokemons: " + e.getMessage(), e);
         }
         return pokemons;
     }
@@ -178,7 +178,7 @@ public class PokemonDAOImplH2 implements PokemonDAO {
     public boolean capturePokemon(int trainerId, int pokemonId) {
         Pokemon pokemon = getPokemonById(pokemonId);
         if (pokemon.getEnergy() > 0) {
-            throw new IllegalStateException("El Pokémon no es capturable porque aún tiene energía > 0");
+            throw new IllegalStateException("El Pokémon no es capturable porque no tiene energía > 0");
         }
 
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);

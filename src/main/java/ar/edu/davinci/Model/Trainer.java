@@ -11,6 +11,7 @@ public class Trainer {
     private final LocalDate birthDate;
     private String nationality;
     private List<Pokemon> pokemonList;
+    private User user;
 
     public Trainer(String name, LocalDate birthDate, String nationality) {
         this.name = name;
@@ -39,7 +40,6 @@ public class Trainer {
         return Period.between(birthDate, LocalDate.now()).getYears();
     }
 
-
     public String getNationality() {
         return nationality;
     }
@@ -58,6 +58,19 @@ public class Trainer {
 
     public LocalDate getBirthDate() {
         return birthDate;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
     }
 
     public void capturePokemon(Pokemon pokemon) {

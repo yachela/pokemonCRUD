@@ -87,10 +87,10 @@ public class Pokemon {
         float damage = this.power * this.type.calculateDamage(otherPokemon.getType());
         otherPokemon.restLife(damage);
 
-        float selfDamage = this.energy * this.type.receiveDamage(otherPokemon.getType());
+        float selfDamage = this.power * this.type.receiveDamage(otherPokemon.getType());
         this.restLife(selfDamage);
 
-        if (otherPokemon.isCapturable()) {
+        if (otherPokemon.isCapturable() && this.trainer != null) {
             this.trainer.capturePokemon(otherPokemon);
         }
     }

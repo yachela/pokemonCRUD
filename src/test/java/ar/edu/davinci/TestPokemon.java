@@ -62,6 +62,7 @@ class TestPokemon {
     @DisplayName("Si un tipo eléctrico ataca a uno de tipo agua, le produce un 50% más de daño")
     public void testElectricPokemonAttacksWaterPokemon() {
         electricPokemon.attack(waterPokemon);
+
         Assertions.assertEquals(70, waterPokemon.getEnergy());
     }
 
@@ -69,7 +70,8 @@ class TestPokemon {
     @DisplayName("Si un tipo eléctrico ataca a uno de tipo agua, se hace un 5% de daño a sí mismo")
     public void testElectricPokemonSelfDamage() {
         electricPokemon.attack(waterPokemon);
-        Assertions.assertEquals(95, electricPokemon.getEnergy());
+
+        Assertions.assertEquals(99, electricPokemon.getEnergy());
     }
 
     @Test

@@ -1,131 +1,162 @@
 package ar.edu.davinci.UI;
 
 import ar.edu.davinci.DAO.BattleManager;
+import ar.edu.davinci.DAO.TrainerDAOImplH2;
 import ar.edu.davinci.DAO.UserDAOImplH2;
 import ar.edu.davinci.Model.Pokemon;
 import ar.edu.davinci.Model.Trainer;
 import ar.edu.davinci.Model.User;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class MainMenuScreen {
     private JPanel mainPanel;
-    private JButton jugarPartidaButton;
-    private JButton misPokemonsButton;
-    private JButton cerrarSesionButton;
-    private UserDAOImplH2 userDAO;
-    private BattleManager battleManager;
+    private JLabel welcomeLabel;
+    private JButton battleButton;
+    private JButton logoutButton;
+    private JButton createTrainerButton;
+    private JButton viewTrainersButton;
+    private JButton createPokemonButton;
 
-    public MainMenuScreen(JFrame frame, BattleManager battleManager) {
+    public MainMenuScreen(JFrame frame, UserDAOImplH2 userDAO, BattleManager battleManager) {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setLayout(new BorderLayout());
 
-        jugarPartidaButton = new JButton("Jugar Partida");
-        misPokemonsButton = new JButton("Mis Pokémon");
-        cerrarSesionButton = new JButton("Cerrar Sesión");
+        welcomeLabel = new JLabel("¡Bienvenido al Sistema de Batallas Pokémon!");
+        welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        mainPanel.add(jugarPartidaButton);
-        mainPanel.add(misPokemonsButton);
-        mainPanel.add(cerrarSesionButton);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(4, 1));
 
-        jugarPartidaButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                simulateBattle(battleManager);
-            }
-        });
+        battleButton = new JButton("Iniciar Batalla");
+        createTrainerButton = new JButton("Crear Entrenador");
+        viewTrainersButton = new JButton("Ver Entrenadores");
+        createPokemonButton = new JButton("Agregar Pokémon");
+        logoutButton = new JButton("Cerrar Sesión");
 
-        misPokemonsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        buttonPanel.add(battleButton);
+        buttonPanel.add(createTrainerButton);
+        buttonPanel.add(viewTrainersButton);
+        buttonPanel.add(createPokemonButton);
+        buttonPanel.add(logoutButton);
+
+        mainPanel.add(welcomeLabel, BorderLayout.NORTH);
+        mainPanel.add(buttonPanel, BorderLayout.CENTER);
+
+
+        battleButton.addActionListener(e -> {
+            try {
                 User currentUser = LoginScreen.getCurrentUser();
+                User opponent = battleManager.findRandomOpponent();
 
-                List<Pokemon> misPokemons = currentUser.getTrainers().stream()
-                        .flatMap(trainer -> trainer.getPokemonList().stream())
-                        .toList();
+                // Obtener entrenadores del usuario y del oponente
+                TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
+                List<Trainer> userTrainers = trainerDAO.getAllTrainersByUser(currentUser.getId());
+                List<Trainer> opponentTrainers = trainerDAO.getAllTrainersByUser(opponent.getId());
 
-                if (misPokemons.isEmpty()) {
-                    JOptionPane.showMessageDialog(mainPanel, "Ninguno de tus entrenadores tiene Pokemons");
-                } else {
-                    misPokemons.forEach(pokemon -> JOptionPane.showMessageDialog(mainPanel, pokemon.getType() + "\n"));
+                if (userTrainers.isEmpty() || opponentTrainers.isEmpty()) {
+                    JOptionPane.showMessageDialog(mainPanel, "Uno de los usuarios no tiene entrenadores registrados.");
+                    return;
                 }
+
+
+                Trainer userTrainer = selectTrainer(userTrainers);
+                Trainer opponentTrainer = selectTrainer(opponentTrainers);
+
+                if (userTrainer.getPokemonList().isEmpty() || opponentTrainer.getPokemonList().isEmpty()) {
+                    JOptionPane.showMessageDialog(mainPanel, "Uno de los entrenadores no tiene Pokémon registrados.");
+                    return;
+                }
+
+                Pokemon userPokemon = selectPokemon(userTrainer);
+                Pokemon opponentPokemon = selectPokemon(opponentTrainer);
+
+
+                Pokemon winner = battleManager.startBattle(userPokemon, opponentPokemon);
+
+                JOptionPane.showMessageDialog(mainPanel, "¡El ganador es " + winner.getSpecie() + "!");
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(mainPanel, "Error al iniciar la batalla: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }
         });
 
-        cerrarSesionButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.setContentPane(new LoginScreen().getMainPanel());
-                frame.revalidate();
+
+        createTrainerButton.addActionListener(e -> {
+            frame.setContentPane(new CreateTrainerScreen(frame, userDAO, battleManager).getMainPanel());
+            frame.revalidate();
+        });
+
+
+        viewTrainersButton.addActionListener(e -> {
+            User currentUser = LoginScreen.getCurrentUser();
+            TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
+            List<Trainer> trainers = trainerDAO.getAllTrainersByUser(currentUser.getId());
+            if (trainers.isEmpty()) {
+                JOptionPane.showMessageDialog(mainPanel, "No tenes entrenadores registrados.");
+            } else {
+                showTrainersTable(trainers);
             }
+        });
+
+        createPokemonButton.addActionListener(e -> {
+            frame.setContentPane(new CreatePokemonScreen(frame, userDAO, new TrainerDAOImplH2(), battleManager).getMainPanel());
+            frame.revalidate();
+        });
+
+
+        logoutButton.addActionListener(e -> {
+            frame.setContentPane(new LoginScreen(frame, userDAO, battleManager).getMainPanel());
+            frame.revalidate();
         });
     }
 
-    private void simulateBattle(BattleManager battleManager) {
-        User currentUser = LoginScreen.getCurrentUser();
-        Trainer currentTrainer = selectTrainer(currentUser);
-        if (currentTrainer == null) {
-            JOptionPane.showMessageDialog(mainPanel, "No seleccionaste un entrenador");
-            return;
+    private void showTrainersTable(List<Trainer> trainers) {
+        String[] columnNames = {"ID", "Nombre", "Fecha de Nacimiento", "Nacionalidad"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+
+        for (Trainer trainer : trainers) {
+            Object[] rowData = {
+                    trainer.getId(),
+                    trainer.getName(),
+                    trainer.getBirthDate(),
+                    trainer.getNationality()
+            };
+            tableModel.addRow(rowData);
         }
 
-        User opponent = battleManager.findRandomOpponent(currentUser);
-        Trainer opponentTrainer = selectTrainer(opponent);
-        if (opponentTrainer == null) {
-            JOptionPane.showMessageDialog(mainPanel, "El oponente no tiene entrenadores disponibles.");
-            return;
-        }
+        JTable trainerTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(trainerTable);
 
-        String result = currentTrainer.faceTrainer(opponentTrainer);
-        JOptionPane.showMessageDialog(mainPanel, result, "Resultado de la Batalla", JOptionPane.INFORMATION_MESSAGE);
+        JFrame tableFrame = new JFrame("Lista de Entrenadores");
+        tableFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        tableFrame.add(scrollPane);
+        tableFrame.setSize(600, 400);
+        tableFrame.setLocationRelativeTo(null);
+        tableFrame.setVisible(true);
     }
 
-    private Trainer selectTrainer(User user) {
-        List<Trainer> trainers = user.getTrainers();
-        if (trainers.isEmpty()) {
-            JOptionPane.showMessageDialog(mainPanel, "Este usuario no tiene entrenadores disponibles");
-            return null;
-        }
-
-        if (user == LoginScreen.getCurrentUser()) {
-
-            String[] trainerNames = trainers.stream()
-                    .map(Trainer::getName)
-                    .toArray(String[]::new);
-
-            String selectedTrainerName = (String) JOptionPane.showInputDialog(
-                    mainPanel,
-                    "Selecciona tu entrenador:",
-                    "Seleccionar Entrenador",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    trainerNames,
-                    trainerNames[0]
-            );
-
-            return trainers.stream()
-                    .filter(trainer -> trainer.getName().equals(selectedTrainerName))
-                    .findFirst()
-                    .orElse(null);
-        } else {
-
-            int randomIndex = (int) (Math.random() * trainers.size());
-            return trainers.get(randomIndex);
-        }
-    }
-
-    public static void show(JFrame frame) {
-        MainMenuScreen mainMenuScreen = new MainMenuScreen(frame, new BattleManager(new UserDAOImplH2()));
-        frame.setContentPane(mainMenuScreen.getMainPanel());
-        frame.revalidate();
-        frame.repaint();
-    }
-
-    public Container getMainPanel() {
+    public JPanel getMainPanel() {
         return mainPanel;
+    }
+
+    private Trainer selectTrainer(List<Trainer> trainers) {
+        String[] trainerNames = trainers.stream().map(Trainer::getName).toArray(String[]::new);
+        String selectedTrainerName = (String) JOptionPane.showInputDialog(
+                null, "Selecciona un entrenador", "Seleccionar Entrenador",
+                JOptionPane.QUESTION_MESSAGE, null, trainerNames, trainerNames[0]);
+
+        return trainers.stream().filter(t -> t.getName().equals(selectedTrainerName)).findFirst().orElse(null);
+    }
+
+    private Pokemon selectPokemon(Trainer trainer) {
+        String[] pokemonNames = trainer.getPokemonList().stream().map(Pokemon::getSpecie).toArray(String[]::new);
+        String selectedPokemonName = (String) JOptionPane.showInputDialog(
+                null, "Selecciona un Pokemon", "Seleccionar Pokemon",
+                JOptionPane.QUESTION_MESSAGE, null, pokemonNames, pokemonNames[0]);
+
+        return trainer.getPokemonList().stream().filter(p -> p.getSpecie().equals(selectedPokemonName)).findFirst().orElse(null);
     }
 }

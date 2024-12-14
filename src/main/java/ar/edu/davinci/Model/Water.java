@@ -11,7 +11,7 @@ public class Water extends Type {
     public float damageBy(String type) {
         switch (type) {
             case "Fire":
-                return 1.5f;
+                return 1.25f;
             default:
                 return super.damageBy(type);
         }

@@ -1,8 +1,9 @@
 package ar.edu.davinci.DAO;
 
+import ar.edu.davinci.Interface.IType;
 import ar.edu.davinci.Model.Pokemon;
 import ar.edu.davinci.Model.Trainer;
-import ar.edu.davinci.Interface.IType;
+import ar.edu.davinci.Model.User;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -14,45 +15,19 @@ public class TrainerDAOImplH2 implements TrainerDAO {
     private static final String USER = "sa";
     private static final String PASSWORD = "";
 
-    public TrainerDAOImplH2() {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             Statement statement = connection.createStatement()) {
-
-            String createTrainerTable = """
-                CREATE TABLE IF NOT EXISTS trainer (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    name VARCHAR(100) NOT NULL,
-                    birth_date DATE NOT NULL,
-                    nationality VARCHAR(50)
-                )
-            """;
-            statement.executeUpdate(createTrainerTable);
-
-            String createTrainerPokemonTable = """
-                CREATE TABLE IF NOT EXISTS trainer_pokemon (
-                    trainer_id INT,
-                    pokemon_id INT,
-                    PRIMARY KEY (trainer_id, pokemon_id),
-                    FOREIGN KEY (trainer_id) REFERENCES trainer(id),
-                    FOREIGN KEY (pokemon_id) REFERENCES pokemon(id)
-                )
-            """;
-            statement.executeUpdate(createTrainerPokemonTable);
-        } catch (SQLException e) {
-            throw new RuntimeException("Error creando la tabla: " + e.getMessage(), e);
-        }
-    }
-
     @Override
     public void insertTrainer(Trainer trainer) {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement(
-                     "INSERT INTO trainer (name, birth_date, nationality) VALUES (?, ?, ?)",
-                     Statement.RETURN_GENERATED_KEYS)) {
-
+        if (trainer.getUser() == null) {
+            throw new IllegalArgumentException("El entrenador debe tener un usuario asignado antes de insertarlo en la base de datos.");
+        }
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            String insertQuery = "INSERT INTO trainer (name, birth_date, nationality, user_id) VALUES (?, ?, ?, ?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(insertQuery, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, trainer.getName());
             preparedStatement.setDate(2, Date.valueOf(trainer.getBirthDate()));
             preparedStatement.setString(3, trainer.getNationality());
+            preparedStatement.setInt(4, trainer.getUser().getId());
+
             preparedStatement.executeUpdate();
 
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
@@ -60,147 +35,120 @@ public class TrainerDAOImplH2 implements TrainerDAO {
                 trainer.setId(generatedKeys.getInt(1));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error agregando trainer: " + e.getMessage(), e);
+            throw new RuntimeException("Error al insertar Trainer: " + e.getMessage(), e);
         }
     }
 
     @Override
     public Trainer getTrainerById(int trainerId) {
-        Trainer trainer = null;
+        String query = "SELECT * FROM trainer WHERE id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM trainer WHERE id = ?")) {
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setInt(1, trainerId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                String name = resultSet.getString("name");
-                LocalDate birthDate = resultSet.getDate("birth_date").toLocalDate();
-                String nationality = resultSet.getString("nationality");
-
-                trainer = new Trainer(name, birthDate, nationality);
-                trainer.setId(trainerId);
-                trainer.setPokemonList(getPokemonListByTrainerId(trainerId));
+                return extractTrainerFromResultSet(resultSet);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error buscando trainer por ID: " + e.getMessage(), e);
+            throw new RuntimeException("Error al obtener Trainer por ID: " + e.getMessage(), e);
         }
-        return trainer;
+        return null;
     }
 
     @Override
     public List<Trainer> getAllTrainers() {
         List<Trainer> trainers = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT * FROM trainer")) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            String sql = "SELECT * FROM trainer";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                LocalDate birthDate = resultSet.getDate("birth_date").toLocalDate();
-                String nationality = resultSet.getString("nationality");
-
-                Trainer trainer = new Trainer(name, birthDate, nationality);
-                trainer.setId(id);
-                trainer.setPokemonList(getPokemonListByTrainerId(id));
+                Trainer trainer = extractTrainerFromResultSet(resultSet);
                 trainers.add(trainer);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error buscando todos los trainers: " + e.getMessage(), e);
+            throw new RuntimeException("Error al obtener todos los entrenadores: " + e.getMessage(), e);
         }
         return trainers;
     }
 
-    private List<Pokemon> getPokemonListByTrainerId(int trainerId) {
-        List<Pokemon> pokemonList = new ArrayList<>();
+    @Override
+    public List<Trainer> getAllTrainersByUser(int userId) {
+        List<Trainer> trainers = new ArrayList<>();
+        String query = "SELECT * FROM trainer WHERE user_id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement("""
-                 SELECT p.* FROM pokemon p 
-                 INNER JOIN trainer_pokemon tp ON p.id = tp.pokemon_id 
-                 WHERE tp.trainer_id = ?
-             """)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            preparedStatement.setInt(1, trainerId);
+            preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String typeStr = resultSet.getString("type");
-                IType type = IType.fromString(typeStr);
-                String specie = resultSet.getString("specie");
-                float energy = resultSet.getFloat("energy");
-                float power = resultSet.getFloat("power");
-
-                Pokemon pokemon = new Pokemon(type, specie);
-                pokemon.setId(id);
-                pokemon.setEnergy(energy);
-                pokemon.setPower(power);
-
-                pokemonList.add(pokemon);
+                Trainer trainer = new Trainer(
+                        resultSet.getString("name"),
+                        resultSet.getDate("birth_date").toLocalDate(),
+                        resultSet.getString("nationality")
+                );
+                trainer.setId(resultSet.getInt("id"));
+                trainers.add(trainer);
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error buscando Pokemons por Trainer ID: " + e.getMessage(), e);
+            throw new RuntimeException("Error al obtener entrenadores por usuario: " + e.getMessage(), e);
         }
-        return pokemonList;
+        return trainers;
     }
+
 
     @Override
     public void updateTrainer(Trainer trainer) {
+        String query = "UPDATE trainer SET name = ?, birth_date = ?, nationality = ?, user_id = ? WHERE id = ?";
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement(
-                     "UPDATE trainer SET name = ?, birth_date = ?, nationality = ? WHERE id = ?")) {
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setString(1, trainer.getName());
             preparedStatement.setDate(2, Date.valueOf(trainer.getBirthDate()));
             preparedStatement.setString(3, trainer.getNationality());
-            preparedStatement.setInt(4, trainer.getId());
+            preparedStatement.setInt(4, trainer.getUser().getId());
+            preparedStatement.setInt(5, trainer.getId());
 
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
-                throw new RuntimeException("Trainer CON id " + trainer.getId() + " no encuentra");
+                throw new RuntimeException("Trainer con ID " + trainer.getId() + " no encontrado.");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error actualizando Trainer: " + e.getMessage(), e);
+            throw new RuntimeException("Error al actualizar Trainer: " + e.getMessage(), e);
         }
     }
 
     @Override
     public void deleteTrainer(int trainerId) {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM trainer WHERE id = ?")) {
-
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            String sql = "DELETE FROM trainer WHERE id = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.setInt(1, trainerId);
-
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new RuntimeException("Trainer con ID " + trainerId + " no encontrado");
-            }
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Error borrando Trainer: " + e.getMessage(), e);
+            throw new RuntimeException("Error al eliminar el entrenador: " + e.getMessage(), e);
         }
     }
 
-    @Override
-    public String battleTrainers(int trainer1Id, int trainer2Id) {
-        Trainer trainer1 = getTrainerById(trainer1Id);
-        Trainer trainer2 = getTrainerById(trainer2Id);
+    private Trainer extractTrainerFromResultSet(ResultSet resultSet) throws SQLException {
+        Trainer trainer = new Trainer(
+                resultSet.getString("name"),
+                resultSet.getDate("birth_date").toLocalDate(),
+                resultSet.getString("nationality")
+        );
+        trainer.setId(resultSet.getInt("id"));
 
-        if (trainer1.getPokemonList().isEmpty() || trainer2.getPokemonList().isEmpty()) {
-            return "Uno de los entrenadores no tiene Pokemones disponibles.";
+        int userId = resultSet.getInt("user_id");
+        if (!resultSet.wasNull()) {
+            UserDAOImplH2 userDAO = new UserDAOImplH2();
+            User user = userDAO.getUserById(userId);
+            trainer.setUser(user);
         }
 
-        Pokemon pokemon1 = trainer1.getPokemonList().get(0);
-        Pokemon pokemon2 = trainer2.getPokemonList().get(0);
-
-        while (pokemon1.getEnergy() > 0 && pokemon2.getEnergy() > 0) {
-            pokemon1.attack(pokemon2);
-            if (pokemon2.getEnergy() > 0) {
-                pokemon2.attack(pokemon1);
-            }
-        }
-
-        String winner = pokemon1.getEnergy() > 0 ? trainer1.getName() : trainer2.getName();
-        return "La batalla termino. El ganador es: " + winner;
+        return trainer;
     }
 }
