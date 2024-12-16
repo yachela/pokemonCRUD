@@ -25,7 +25,7 @@ public class MainMenuScreen {
         mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
-        welcomeLabel = new JLabel("¡Bienvenido al Sistema de Batallas Pokémon!");
+        welcomeLabel = new JLabel("Bienvenido al juego Pokemon");
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         JPanel buttonPanel = new JPanel();
@@ -52,7 +52,6 @@ public class MainMenuScreen {
                 User currentUser = LoginScreen.getCurrentUser();
                 User opponent = battleManager.findRandomOpponent();
 
-                // Obtener entrenadores del usuario y del oponente
                 TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
                 List<Trainer> userTrainers = trainerDAO.getAllTrainersByUser(currentUser.getId());
                 List<Trainer> opponentTrainers = trainerDAO.getAllTrainersByUser(opponent.getId());
@@ -77,7 +76,7 @@ public class MainMenuScreen {
 
                 Pokemon winner = battleManager.startBattle(userPokemon, opponentPokemon);
 
-                JOptionPane.showMessageDialog(mainPanel, "¡El ganador es " + winner.getSpecie() + "!");
+                JOptionPane.showMessageDialog(mainPanel, "El ganador es " + winner.getSpecie());
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(mainPanel, "Error al iniciar la batalla: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             }

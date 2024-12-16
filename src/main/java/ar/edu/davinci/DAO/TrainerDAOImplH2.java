@@ -143,11 +143,12 @@ public class TrainerDAOImplH2 implements TrainerDAO {
         trainer.setId(resultSet.getInt("id"));
 
         int userId = resultSet.getInt("user_id");
-        if (!resultSet.wasNull()) {
+        if (userId > 0) {
             UserDAOImplH2 userDAO = new UserDAOImplH2();
             User user = userDAO.getUserById(userId);
             trainer.setUser(user);
         }
+
 
         return trainer;
     }

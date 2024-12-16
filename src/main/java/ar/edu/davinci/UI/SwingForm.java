@@ -12,21 +12,21 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class SwingForm extends JFrame {
-
+    private JPanel panel;
     private JTextField nameField;
     private JTextField phoneField;
 
     public SwingForm() {
-        setTitle("Form");
+        setTitle("Formulario de Registro");
         setSize(300, 200);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-        JPanel panel = new JPanel();
+        panel = new JPanel();
         panel.setLayout(new GridLayout(4, 2));
 
         JLabel nameLabel = new JLabel("Nombre:");
         nameField = new JTextField();
-        JLabel phoneLabel = new JLabel("Telefono:");
+        JLabel phoneLabel = new JLabel("Teléfono:");
         phoneField = new JTextField();
 
         panel.add(nameLabel);
@@ -34,71 +34,29 @@ public class SwingForm extends JFrame {
         panel.add(phoneLabel);
         panel.add(phoneField);
 
-
         JButton sendButton = new JButton("Guardar");
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                sendData();
-            }
-        });
-
+        sendButton.addActionListener(e -> sendData());
         panel.add(sendButton);
 
-        add(panel);
-
         JButton cancelButton = new JButton("Cancelar");
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dispose();
-            }
-        });
-
-
-        JButton listAllButton = new JButton("Ver lista");
-        listAllButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                listAllPersons();
-            }
-        });
-        panel.add(listAllButton);
+        cancelButton.addActionListener(e -> dispose());
+        panel.add(cancelButton);
 
         add(panel);
     }
 
-    private void listAllPersons() {
-        UserDAO userDAO = new UserDAOImplH2();
-        List<User> users = userDAO.getAllUsers();
-        for (User user : users) {
-            System.out.println(user);
-        }
-
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                UserTableFrame tableFrame = new UserTableFrame(users);
-                tableFrame.setVisible(true);
-            }
-        });
+    public JPanel getContentPane() {
+        return panel;
     }
-
 
     private void sendData() {
         String name = nameField.getText();
         String phone = phoneField.getText();
 
-
         System.out.println("Name: " + name + ", Phone: " + phone);
 
-        UserDAO userDAO = new UserDAOImplH2();
+        UserDAOImplH2 userDAO = new UserDAOImplH2();
         User user = new User(name, phone);
         userDAO.insertUser(user);
-    }
-
-    public static void main(String[] args) {
-        SwingForm form = new SwingForm();
-        form.setVisible(true);
     }
 }

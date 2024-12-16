@@ -70,7 +70,7 @@ public class Pokemon {
 
     public void setSpecie(String specie) {
         if (specie == null || specie.isEmpty()) {
-            throw new IllegalArgumentException("La especie no puede ser null o vacía");
+            throw new IllegalArgumentException("La especie no puede ser null");
         }
         this.specie = specie;
     }

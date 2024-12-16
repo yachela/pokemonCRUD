@@ -37,10 +37,10 @@ public class BattleManager {
         }
 
         if (pokemon1.getEnergy() > 0) {
-            System.out.println(pokemon1.getSpecie() + " ha ganado.");
+            System.out.println(pokemon1.getSpecie() + " gano");
             return pokemon1;
         } else {
-            System.out.println(pokemon2.getSpecie() + " ha ganado.");
+            System.out.println(pokemon2.getSpecie() + " gano");
             return pokemon2;
         }
     }

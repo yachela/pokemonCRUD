@@ -14,6 +14,7 @@ public class LoginScreen {
     private JTextField userNameTextField;
     private JPasswordField passwordTextField;
     private JButton iniciarSesionButton;
+    private JButton registerButton;
 
     private UserDAOImplH2 userDAO;
     private BattleManager battleManager;
@@ -40,7 +41,7 @@ public class LoginScreen {
         try {
             ImageIcon bannerImage = new ImageIcon(Objects.requireNonNull(getClass().getClassLoader().getResource("pokemon.png")));
             if (bannerImage.getIconWidth() == -1 || bannerImage.getIconHeight() == -1) {
-                throw new Exception("Imagen no válida o no encontrada en la ruta especificada.");
+                throw new Exception("Imagen no encontrada");
             }
             JLabel bannerLabel = new JLabel(bannerImage);
             bannerLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -55,12 +56,13 @@ public class LoginScreen {
         }
 
         JPanel formPanel = new JPanel(new GridBagLayout());
-        formPanel.setOpaque(false); // Hacerlo transparente para que muestre el fondo
+        formPanel.setOpaque(false);
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         userNameTextField = new JTextField(15);
         passwordTextField = new JPasswordField(15);
         iniciarSesionButton = new JButton("Iniciar sesión");
+        registerButton = new JButton("Registrarse");
 
         iniciarSesionButton.addActionListener(this::handleLogin);
 
@@ -87,7 +89,15 @@ public class LoginScreen {
         constraints.anchor = GridBagConstraints.CENTER;
         formPanel.add(iniciarSesionButton, constraints);
 
+        constraints.gridy = 3;
+        formPanel.add(registerButton, constraints);
+
         mainPanel.add(formPanel, BorderLayout.CENTER);
+        registerButton.addActionListener(e -> {
+            frame.setContentPane(new SwingForm().getContentPane());
+            frame.revalidate();
+            frame.repaint();
+        });
     }
 
     private void handleLogin(ActionEvent e) {
@@ -105,6 +115,8 @@ public class LoginScreen {
             JOptionPane.showMessageDialog(mainPanel, "Usuario o contraseña incorrectos.");
         }
     }
+
+
 
     public JPanel getMainPanel() {
         return mainPanel;

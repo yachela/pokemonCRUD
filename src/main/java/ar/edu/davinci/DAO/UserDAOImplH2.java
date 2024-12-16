@@ -40,6 +40,9 @@ public class UserDAOImplH2 implements UserDAO {
 
     @Override
     public void insertUser(User user) {
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("El usuario debe tener un password válido antes de insertarlo.");
+        }
         try {
             this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
             String insertQuery = "INSERT INTO users (name, phone, password) VALUES (?, ?, ?)";

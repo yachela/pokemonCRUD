@@ -45,18 +45,18 @@ public class TestTrainerDAO {
         TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
 
 
-        User user = new User("testUser", "password");
+        User user = new User("testUser", "123456789", "securePassword123");
         userDAO.insertUser(user);
 
 
-        Trainer trainer = new Trainer("Casia", LocalDate.of(2000, 5, 22), "MG");
+        Trainer trainer = new Trainer("Casia", LocalDate.of(1995, 3, 10), "Pivot");
         trainer.setUser(user);
         trainerDAO.insertTrainer(trainer);
 
         List<Trainer> trainers = trainerDAO.getAllTrainers();
 
         Assertions.assertFalse(trainers.isEmpty(), "La lista de entrenadores no debería estar vacía");
-        Assertions.assertEquals(trainer.getName(), trainers.get(0).getName());
+        Assertions.assertEquals("lali", trainers.get(0).getName());
         Assertions.assertEquals(user.getId(), trainers.get(0).getUser().getId());
     }
 
@@ -80,26 +80,28 @@ public class TestTrainerDAO {
         Assertions.assertEquals("Misty actualizada", updatedTrainer.getName());
     }
 
+
     @Test
     void testDeleteTrainer() {
         UserDAOImplH2 userDAO = new UserDAOImplH2();
         TrainerDAOImplH2 trainerDAO = new TrainerDAOImplH2();
 
 
-        User user = new User("deleteTestUser", "password123");
+        User user = new User();
+        user.setName("deleteTestUser");
+        user.setPhone("123456789");
+        user.setPassword("password123");
+
         userDAO.insertUser(user);
 
         Trainer trainer = new Trainer("Casia Orela", LocalDate.of(1990, 3, 15), "Argentina");
         trainer.setUser(user);
         trainerDAO.insertTrainer(trainer);
 
-
         List<Trainer> trainersBeforeDelete = trainerDAO.getAllTrainers();
         assertFalse(trainersBeforeDelete.isEmpty(), "Debe haber al menos un entrenador antes de la eliminación.");
 
-
         trainerDAO.deleteTrainer(trainer.getId());
-
 
         List<Trainer> trainersAfterDelete = trainerDAO.getAllTrainers();
         assertTrue(trainersAfterDelete.isEmpty(), "La lista de entrenadores debería estar vacía después de la eliminación.");

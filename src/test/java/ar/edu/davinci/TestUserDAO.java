@@ -3,6 +3,7 @@ package ar.edu.davinci;
 import ar.edu.davinci.DAO.UserDAO;
 import ar.edu.davinci.DAO.UserDAOImplH2;
 import ar.edu.davinci.Model.User;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,10 +16,15 @@ public class TestUserDAO {
 
     @Test
     public void testInsertUser() {
-        User user = new User("Tracy", "123456789", "pass123");
+        User user = new User();
+        user.setName("testUser");
+        user.setPhone("123456789");
+        user.setPassword("testPassword");
+
+        UserDAOImplH2 userDAO = new UserDAOImplH2();
         userDAO.insertUser(user);
 
-        assertNotNull(user.getId(), "El ID del usuario no debería ser nulo al insertarlo.");
+        Assertions.assertNotNull(user.getId(), "El ID del usuario no debe ser null después de insertarlo.");
     }
 
     @Test
